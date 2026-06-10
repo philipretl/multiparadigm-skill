@@ -232,12 +232,14 @@
   .pat-cons b { color: var(--text-soft); }
 
   /* ---------- Per-pattern UML examples (profile notation) ---------- */
-  .uml-example { border-top: 1px dashed var(--border); padding-top: 8px; }
-  .uml-example summary { cursor: pointer; font-size: .78rem; font-weight: 700; color: var(--accent); list-style: none; user-select: none; }
-  .uml-example summary::-webkit-details-marker { display: none; }
-  .uml-example summary::before { content: '\25B8  '; }
-  .uml-example[open] summary::before { content: '\25BE  '; }
-  .uml-example summary:hover { color: var(--accent-strong); }
+  .uml-example { border-top: 1px dashed var(--border); padding-top: 10px; }
+  .uml-open-btn {
+    display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+    font: inherit; font-size: .78rem; font-weight: 700; color: var(--accent);
+    background: var(--bg-alt); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;
+  }
+  .uml-open-btn:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); }
+  .uml-open-btn svg { flex: none; }
   .uml-mini { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
   .uml-row { display: flex; gap: 10px; flex-wrap: wrap; }
   .uml-row .uml-class { flex: 1 1 0; min-width: 104px; }
@@ -249,6 +251,43 @@
   .uml-rel { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: .68rem; color: var(--text-soft); text-align: center; padding: 1px 0; }
   .uml-note { font-size: .7rem; color: var(--text-faint); font-style: italic; }
   .uml-seq { margin-top: 8px; border-left: 3px solid var(--accent); background: var(--code-bg); padding: 6px 10px; border-radius: 0 6px 6px 0; font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: .7rem; line-height: 1.7; color: var(--text); overflow-x: auto; }
+
+  /* ---------- UML example modal ---------- */
+  .uml-modal {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+    background: rgba(10, 10, 18, .55);
+    backdrop-filter: blur(4px);
+  }
+  .uml-modal[hidden] { display: none; }
+  .uml-modal-dialog {
+    background: var(--bg-alt); border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: var(--shadow); width: 100%; max-width: 760px; max-height: 85vh;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .uml-modal-head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+  }
+  .uml-modal-title { font-weight: 700; font-size: 1.05rem; letter-spacing: -.01em; }
+  .uml-modal-close {
+    margin-left: auto; flex: none; cursor: pointer;
+    width: 34px; height: 34px; border-radius: 8px; font-size: 1.25rem; line-height: 1;
+    border: 1px solid var(--border); background: var(--bg-alt); color: var(--text-soft);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .uml-modal-close:hover { color: var(--text); border-color: var(--text-faint); }
+  .uml-modal-body { padding: 20px 22px; overflow-y: auto; }
+  .uml-modal-body .uml-mini { margin-top: 0; gap: 8px; }
+  .uml-modal-body .uml-class { font-size: .95rem; line-height: 1.65; border-radius: 7px; }
+  .uml-modal-body .uml-class > div { padding: 7px 14px; }
+  .uml-modal-body .uml-class b { font-size: 1rem; }
+  .uml-modal-body .uml-row { gap: 14px; }
+  .uml-modal-body .uml-row .uml-class { min-width: 180px; }
+  .uml-modal-body .uml-rel { font-size: .88rem; padding: 4px 0; }
+  .uml-modal-body .uml-note { font-size: .85rem; }
+  .uml-modal-body .uml-seq { margin-top: 0; font-size: .88rem; padding: 10px 14px; }
+  .uml-seq-label { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-soft); margin: 20px 0 8px; }
 
   /* ---------- Steps ---------- */
   .steps { display: grid; gap: 14px; counter-reset: paso; }
@@ -617,6 +656,22 @@
     <p class="note">Undergraduate research project; empirical evaluation in progress.</p>
   </div>
 </footer>
+
+<!-- ============ UML EXAMPLE MODAL (shared by the 16 catalog cards) ============ -->
+<div class="uml-modal" id="umlModal" hidden>
+  <div class="uml-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="umlModalTitle">
+    <div class="uml-modal-head">
+      <span class="uml-modal-title" id="umlModalTitle"></span>
+      <div class="pat-tags" id="umlModalTags"></div>
+      <button class="uml-modal-close" id="umlModalClose" type="button" aria-label="Close UML example">&times;</button>
+    </div>
+    <div class="uml-modal-body">
+      <div class="uml-mini" id="umlModalUml"></div>
+      <h4 class="uml-seq-label" id="umlModalSeqLabel">Sequence example</h4>
+      <div class="uml-seq" id="umlModalSeq"></div>
+    </div>
+  </div>
+</div>
 
 <script>
 /* =================== Light/dark theme =================== */
@@ -1077,15 +1132,60 @@
         '</div>' +
         '<p class="pat-ref">' + p.ref + '</p>' +
         '<p class="pat-desc">' + p.desc + '</p>' +
-        '<details class="uml-example"><summary>UML example</summary>' +
-          '<div class="uml-mini">' + p.uml + '</div>' +
-          '<div class="uml-seq">' + p.seq + '</div>' +
-        '</details>' +
+        '<div class="uml-example">' +
+          '<button class="uml-open-btn" type="button" data-uml="' + PATTERNS.indexOf(p) + '">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="6" rx="1"/><rect x="13" y="15" width="8" height="6" rx="1"/><path d="M7 9v4h10v2"/></svg>' +
+            'View UML example' +
+          '</button>' +
+        '</div>' +
         '<p class="pat-cons"><b>Consequences:</b> ' + p.cons + '<br><b>Anchors:</b> ' + p.anchor + '</p>' +
         '</article>';
     }).join('');
     count.textContent = 'Showing ' + visible.length + ' of ' + PATTERNS.length + ' patterns.';
   }
+
+  /* --- UML example modal (one shared dialog, filled per pattern) --- */
+  var modal = document.getElementById('umlModal');
+  var modalTitle = document.getElementById('umlModalTitle');
+  var modalTags = document.getElementById('umlModalTags');
+  var modalUml = document.getElementById('umlModalUml');
+  var modalSeq = document.getElementById('umlModalSeq');
+  var modalClose = document.getElementById('umlModalClose');
+  var lastTrigger = null;
+
+  function openUmlModal(i, trigger) {
+    var p = PATTERNS[i];
+    if (!p) return;
+    lastTrigger = trigger || null;
+    modalTitle.textContent = p.name + ' — #' + p.n;
+    modalTags.innerHTML = originPill(p.group, p.origin) +
+      p.mech.map(function (m) { return '<span class="pill pill-neutral">' + m + '</span>'; }).join('');
+    modalUml.innerHTML = p.uml;
+    modalSeq.innerHTML = p.seq;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    modalClose.focus();
+  }
+
+  function closeUmlModal() {
+    if (modal.hidden) return;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    if (lastTrigger && document.body.contains(lastTrigger)) lastTrigger.focus();
+    lastTrigger = null;
+  }
+
+  /* Delegation: cards re-render on every filter change, so listen on the grid. */
+  grid.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-uml]');
+    if (btn) openUmlModal(parseInt(btn.getAttribute('data-uml'), 10), btn);
+  });
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal || e.target.closest('.uml-modal-close')) closeUmlModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeUmlModal();
+  });
 
   document.querySelectorAll('[data-fmech]').forEach(function (b) {
     b.addEventListener('click', function () {
