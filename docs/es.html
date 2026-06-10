@@ -231,6 +231,25 @@
   .pat-cons { font-size: .8rem; color: var(--text-faint); border-top: 1px dashed var(--border); padding-top: 8px; }
   .pat-cons b { color: var(--text-soft); }
 
+  /* ---------- Ejemplos UML por patrón (notación del perfil) ---------- */
+  .uml-example { border-top: 1px dashed var(--border); padding-top: 8px; }
+  .uml-example summary { cursor: pointer; font-size: .78rem; font-weight: 700; color: var(--accent); list-style: none; user-select: none; }
+  .uml-example summary::-webkit-details-marker { display: none; }
+  .uml-example summary::before { content: '\25B8  '; }
+  .uml-example[open] summary::before { content: '\25BE  '; }
+  .uml-example summary:hover { color: var(--accent-strong); }
+  .uml-mini { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+  .uml-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .uml-row .uml-class { flex: 1 1 0; min-width: 104px; }
+  .uml-class { border: 1px solid var(--text-faint); border-radius: 5px; background: var(--bg-inset); font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: .7rem; line-height: 1.5; color: var(--text); }
+  .uml-class > div { padding: 3px 8px; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
+  .uml-class > div:first-child { border-top: none; text-align: center; }
+  .uml-class b { display: block; font-size: .74rem; }
+  .uml-class i, .uml-seq i, .uml-rel i { color: var(--accent); font-style: normal; }
+  .uml-rel { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: .68rem; color: var(--text-soft); text-align: center; padding: 1px 0; }
+  .uml-note { font-size: .7rem; color: var(--text-faint); font-style: italic; }
+  .uml-seq { margin-top: 8px; border-left: 3px solid var(--accent); background: var(--code-bg); padding: 6px 10px; border-radius: 0 6px 6px 0; font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: .7rem; line-height: 1.7; color: var(--text); overflow-x: auto; }
+
   /* ---------- Steps ---------- */
   .steps { display: grid; gap: 14px; counter-reset: paso; }
   .step { display: flex; gap: 16px; }
@@ -924,82 +943,114 @@
       ref: 'Lambda como estrategia inyectable',
       desc: 'Reemplaza la jerarquía clásica Strategy/ConcreteStrategy por un parámetro funcional. Aplica cuando la variabilidad es de comportamiento puro y la jerarquía OO añade indirección sin valor.',
       cons: 'Extensibilidad y configurabilidad sin nuevas clases.',
-      anchor: 'Narbel 2007 · Crichton 2023' },
+      anchor: 'Narbel 2007 · Crichton 2023',
+      uml: '<div class="uml-class"><div><b>Ordenador</b></div><div><i>«pure»</i> ordenar(lista: Lista&lt;T&gt;, comparador: (T, T) -&gt; Entero): Lista&lt;T&gt;</div></div><div class="uml-note">La firma flecha (T, T) -&gt; Entero reemplaza toda la jerarquía Strategy/ConcreteStrategy.</div>',
+      seq: '<div>cliente → ordenador: ordenar(lista, <i>«lambda»</i> porPrecio)</div><div>ordenador - -→ cliente: listaOrdenada</div>' },
     { n: 2, name: 'Visitor', origin: 'GoF (OO)', group: 'gof', mech: ['M3', 'M1'],
       ref: 'Pattern matching + función externa; alternativa: object algebra',
       desc: 'Reemplaza el double dispatch del Visitor con extractores o case classes, o con object algebras para resolver simultáneamente extensión de datos y de operaciones.',
       cons: 'Extensibilidad bidimensional, modularidad mejorada.',
-      anchor: 'Emir et al. · Oliveira &amp; Cook 2012 · EVF (Zhang 2017)' },
+      anchor: 'Emir et al. · Oliveira &amp; Cook 2012 · EVF (Zhang 2017)',
+      uml: '<div class="uml-class"><div><i>{immutable}</i> <b>Expr = Lit | Suma</b></div><div><i>«extractor»</i> unapply en cada variante</div></div><div class="uml-rel">△ ┄ ┄ hace matching sobre (sin accept/visit)</div><div class="uml-class"><div><b>Evaluador</b></div><div><i>«pure»</i> evaluar(e: Expr): Entero</div></div><div class="uml-note">Alternativa cuando crecen ambas dimensiones: ExpAlg&lt;T&gt; <i>«algebra»</i> (ver #11).</div>',
+      seq: '<div>cliente → evaluador: evaluar(expr)</div><div>evaluador → Suma: <i>«extractor»</i> unapply(expr) ⇒ (izq, der)</div>' },
     { n: 3, name: 'Iterator', origin: 'GoF (OO)', group: 'gof', mech: ['M4'],
       ref: 'Stream + map/filter/reduce; traversal datatype-generic',
       desc: 'Reemplaza los iteradores externos del patrón GoF por pipelines de orden superior.',
       cons: 'Composicionalidad, ausencia de estado mutable de iteración, paralelización implícita.',
-      anchor: 'Bringert &amp; Ranta 2006 · Gibbons 2007' },
+      anchor: 'Bringert &amp; Ranta 2006 · Gibbons 2007',
+      uml: '<div class="uml-class"><div><i>{immutable}</i> <b>Coleccion&lt;T&gt;</b></div><div><i>«pure»</i> map(f: (T) -&gt; R): Coleccion&lt;R&gt;<br><i>«pure»</i> filter(p: (T) -&gt; Bool): Coleccion&lt;T&gt;<br><i>«pure»</i> reduce(f: (R, T) -&gt; R, z: R): R</div></div><div class="uml-note">El pipeline reemplaza al objeto Iterator externo: sin cursor mutable.</div>',
+      seq: '<div>cliente → lista: map(<i>«lambda»</i> aPrecio)</div><div>cliente → lista: filter(<i>«lambda»</i> noCero)</div>' },
     { n: 4, name: 'Decorator', origin: 'GoF (OO)', group: 'gof', mech: ['M4'],
       ref: 'Composición de funciones / wrapping con HOF',
       desc: 'Reemplaza decoradores OO por composición de funciones cuando los decoradores son puros y no necesitan estado entre llamadas.',
       cons: 'Simplicidad y reusabilidad.',
-      anchor: 'Bringert &amp; Ranta 2006 · Sousa &amp; Ferreira 2012' },
+      anchor: 'Bringert &amp; Ranta 2006 · Sousa &amp; Ferreira 2012',
+      uml: '<div class="uml-class"><div><b>Pipeline&lt;T&gt;</b></div><div><i>«pure»</i> componer(f: (T) -&gt; T, g: (T) -&gt; T): (T) -&gt; T<br>aplicar(x: T): T</div></div><div class="uml-note">Los wrappers puros se componen como funciones: sin una clase decoradora por capa.</div>',
+      seq: '<div>cliente → pipeline: aplicar(componer(<i>«lambda»</i> registrar, <i>«lambda»</i> comprimir))</div>' },
     { n: 5, name: 'Observer', origin: 'GoF (OO)', group: 'gof', mech: ['M5'],
       ref: 'Reactive streams / signals declarativos',
       desc: 'Reemplaza Observer/Subject por signals reactivos; hay evidencia empírica de mejor comprensibilidad y menor acoplamiento.',
       cons: 'Mantenibilidad mejorada, modularidad.',
-      anchor: 'Salvaneschi et al. 2017' },
+      anchor: 'Salvaneschi et al. 2017',
+      uml: '<div class="uml-class"><div><b>Sensor</b></div><div>temperatura: Real <i>«var»</i></div></div><div class="uml-rel">┊ <i>«react»</i> ▼ propagación automática</div><div class="uml-class"><div><b>Tablero</b></div><div>promedio: Real <i>«signal»</i></div></div>',
+      seq: '<div>cliente → sensor: actualizar(temperatura)</div><div>sensor - -→ tablero: <i>«react»</i> cambioEnTemperatura (promedio recalculado)</div>' },
     { n: 6, name: 'Extensible State Machine', origin: 'OO', group: 'gof', mech: ['M5'],
       ref: 'State machine extensible con tipos genéricos y dispatch funcional',
       desc: 'Combina herencia OO con delimited continuations FP para permitir extensión modular de estados y eventos. Para máquinas de estado complejas que requieren extensión por subclasificación.',
       cons: 'Extensibilidad, mantenibilidad, modularidad.',
-      anchor: 'Chin &amp; Millstein 2008 · JavaGI' },
+      anchor: 'Chin &amp; Millstein 2008 · JavaGI',
+      uml: '<div class="uml-class"><div><b>Maquina&lt;S&gt;</b></div><div>actual: S <i>«var»</i></div><div>ejecutar(eventos): Resultado</div></div><div class="uml-rel">│ actual ▼</div><div class="uml-class"><div><b>Estado</b></div><div>manejar(evento: Evento): Estado</div></div><div class="uml-note">Estados y eventos nuevos se añaden por subclasificación; el dispatch sigue siendo funcional.</div>',
+      seq: '<div>maquina → estado: manejar(evento)</div><div>estado - -→ maquina: <i>«continuation»</i> esperarSiguiente (suspendida hasta el siguiente evento)</div>' },
     { n: 7, name: 'Datatype-Generic', origin: 'FP', group: 'fp', mech: ['M2'],
       ref: 'OO datatype-generic con typeclasses / generic interfaces',
       desc: 'Encoding extensible vía virtual classes en Scala: articula traits y type members con polimorfismo paramétrico para resolver el Expression Problem bidimensionalmente.',
       cons: 'Extensibilidad, modularidad, reusabilidad.',
-      anchor: 'Moors et al. 2006 · Oliveira 2015' },
+      anchor: 'Moors et al. 2006 · Oliveira 2015',
+      uml: '<div class="uml-class"><div><i>«typeclass»</i> <b>Traversable&lt;F&gt;</b></div><div>map(f: (A) -&gt; B, fa: F&lt;A&gt;): F&lt;B&gt;</div></div><div class="uml-rel">△ ┄ ┄ instancia retroactiva, F = Arbol</div><div class="uml-class"><div><b>Arbol</b></div><div>clase existente, sin tocar</div></div>',
+      seq: '<div>cliente → traversable: map(<i>«lambda»</i> renombrar, arbol)</div>' },
     { n: 8, name: 'Almost Compositional', origin: 'FP', group: 'fp', mech: ['M4'],
       ref: 'Patrón funcional aplicado en OO con monadas / aplicativos',
       desc: 'Ahorra boilerplate en transformaciones tipadas que dejan la mayoría de constructores intactos; típico de intérpretes y compiladores.',
       cons: 'Mantenibilidad y reusabilidad.',
-      anchor: 'Bringert &amp; Ranta 2006' },
+      anchor: 'Bringert &amp; Ranta 2006',
+      uml: '<div class="uml-class"><div><b>Transformador</b></div><div><i>«pure»</i> transformar(nodo: Nodo): Nodo<br><i>«pure»</i> recorridoPorDefecto(nodo: Nodo): Nodo</div></div><div class="uml-note">Solo los casos interesantes redefinen transformar; el resto cae en el recorrido por defecto.</div>',
+      seq: '<div>transformador → arbol: recorrer(<i>«lambda»</i> reescribirCaso)</div>' },
     { n: 9, name: 'Component Prototyping', origin: 'Híbrido', group: 'hib', mech: ['M2'],
       ref: 'Type-level approach con type classes y functional dependencies',
       desc: 'Composición de componentes a nivel de tipos mediante multi-parameter type classes y functional dependencies.',
       cons: 'Prototipado rápido con seguridad de tipos al componer componentes.',
-      anchor: 'Barbosa et al. 2007' },
+      anchor: 'Barbosa et al. 2007',
+      uml: '<div class="uml-class"><div><i>«typeclass»</i> <b>Componente&lt;C, Requiere, Provee&gt;</b></div><div>conectar(c: C, dep: Requiere): Provee</div></div><div class="uml-note">La compatibilidad requiere/provee se verifica a nivel de tipos al componer.</div>',
+      seq: '<div>ensamblador → componente: conectar(parser, lexer) — cableado validado en compilación</div>' },
     { n: 10, name: 'Actor Unification', origin: 'Concurrente', group: 'hib', mech: ['M5'],
       ref: 'Actores que unifican hilos y eventos vía continuaciones',
       desc: 'Actores que unifican concurrencia thread-based y event-based mediante continuaciones como closures.',
       cons: 'Modularidad, extensibilidad de modelos de concurrencia, performance ajustable.',
-      anchor: 'Haller &amp; Odersky 2007' },
+      anchor: 'Haller &amp; Odersky 2007',
+      uml: '<div class="uml-class"><div><i>«actor»</i> <b>Planificador</b></div><div>buzon: Cola&lt;Msj&gt;</div><div>procesar(tarea: Tarea)</div></div>',
+      seq: '<div>productor → planificador: <i>«send»</i> procesar(tarea)</div><div>planificador → planificador: <i>«receive»</i> procesar(tarea)</div><div>planificador - -→ productor: <i>«continuation»</i> resultado</div>' },
     { n: 11, name: 'Object Algebra', origin: 'Nuevo (FP+OO)', group: 'nuevo', mech: ['M1'],
       ref: 'Generalización de Factory + Visitor que resuelve el Expression Problem',
       desc: 'Factory genérica más visitor sin métodos accept, parametrizada en una signatura algebraica. Permite extensión bidimensional: nuevos tipos y nuevas operaciones sin tocar lo existente.',
       cons: 'Extensibilidad, modularidad y reusabilidad máximas.',
-      anchor: 'Oliveira &amp; Cook 2012 · Oliveira et al. 2013/2015' },
+      anchor: 'Oliveira &amp; Cook 2012 · Oliveira et al. 2013/2015',
+      uml: '<div class="uml-class"><div><i>«algebra»</i> <b>ExpAlg&lt;T&gt;</b></div><div>lit(n: Entero): T<br>suma(izq: T, der: T): T</div></div><div class="uml-rel">△ ┄ ┄ realizaciones ┄ ┄ △</div><div class="uml-row"><div class="uml-class"><div><b>Evaluador</b></div><div>T = Entero</div></div><div class="uml-class"><div><b>Impresora</b></div><div>T = Texto</div></div></div>',
+      seq: '<div>cliente → evaluador: suma(lit(1), lit(2)) ⇒ 3</div><div>cliente → impresora: suma(lit(1), lit(2)) ⇒ "1 + 2"</div>' },
     { n: 12, name: 'Immutable Factory Method', origin: 'Nuevo (OO con valores FP)', group: 'nuevo', mech: ['M2'],
       ref: 'Genéricos + default methods + factory tipo-específico sobre tipos inmutables',
       desc: 'Combina Factory Method clásico con generics e interfaces de Java 8 para reutilizar métodos en jerarquías inmutables; resuelve el conflicto entre la regla de Bloch sobre extensibilidad de clases inmutables y la herencia múltiple de comportamientos.',
       cons: 'Mantenibilidad, reusabilidad, robustez.',
-      anchor: 'Hashimoto et al. 2023' },
+      anchor: 'Hashimoto et al. 2023',
+      uml: '<div class="uml-class"><div><b>Fabrica&lt;T&gt;</b></div><div>crear(partes): T<br><i>«pure»</i> combinar(a: T, b: T): T (método default)</div></div><div class="uml-rel">┊ crea ▼</div><div class="uml-class"><div><i>«ValueObject»</i> <i>{immutable}</i> <b>Valor</b></div></div><div class="uml-note">Genéricos + métodos default reutilizan comportamiento en toda la jerarquía inmutable.</div>',
+      seq: '<div>cliente → fabrica: crear(partes) ⇒ nuevo Valor (las instancias existentes no cambian)</div>' },
     { n: 13, name: 'Type Class / Generalized Interface', origin: 'Nuevo (FP+OO)', group: 'nuevo', mech: ['M2'],
       ref: 'Polimorfismo sin herencia, abierto a tipos nuevos sin tocar definiciones',
       desc: 'Extiende interfaces con type classes al estilo Haskell para implementaciones retroactivas (JavaGI). Hace obsoletos Adapter, Factory y partes de Visitor.',
       cons: 'Extensibilidad, modularidad, flexibilidad.',
-      anchor: 'Wehr &amp; Thiemann (JavaGI) · Odersky 2018' },
+      anchor: 'Wehr &amp; Thiemann (JavaGI) · Odersky 2018',
+      uml: '<div class="uml-class"><div><i>«typeclass»</i> <b>Comparable&lt;T&gt;</b></div><div>comparar(a: T, b: T): Entero</div></div><div class="uml-rel">△ ┄ ┄ instancia retroactiva, T = FechaLib</div><div class="uml-class"><div><b>FechaLib</b></div><div>clase de biblioteca, no se modifica</div></div>',
+      seq: '<div>cliente → comparable: comparar(f1, f2) — dispatch vía la instancia retroactiva</div>' },
     { n: 14, name: 'Extractor (Active Pattern)', origin: 'Nuevo (FP+OO)', group: 'nuevo', mech: ['M3'],
       ref: 'Adaptador entre encapsulación OO y pattern matching FP',
       desc: 'Método unapply (o active patterns en F#) que descompone objetos para pattern matching, separando la estructura concreta de la descomposición. Para APIs que exponen matching sobre tipos cuya representación interna debe ocultarse.',
       cons: 'Extensibilidad, encapsulación, mantenibilidad.',
-      anchor: 'Emir et al. 2007 · Solodkyy 2012' },
+      anchor: 'Emir et al. 2007 · Solodkyy 2012',
+      uml: '<div class="uml-class"><div><b>Complejo</b></div><div>representación interna oculta (polar o cartesiana)</div><div><i>«extractor»</i> unapply(c: Complejo): (real, imaginario)</div></div>',
+      seq: '<div>matcher → Complejo: <i>«extractor»</i> unapply(z) ⇒ (real, imaginario)</div>' },
     { n: 15, name: 'Parser Combinators', origin: 'Nuevo (FP en host OO/multi)', group: 'nuevo', mech: ['M4'],
       ref: 'Composición FP de parsers con tipos OO en lenguaje multiparadigma',
       desc: 'Parsers como funciones de orden superior, con implicits y path-dependent types en Scala. Reemplaza generadores de parsers externos en muchos casos.',
       cons: 'Extensibilidad, modularidad, expresividad.',
-      anchor: 'Willis &amp; Wu 2022' },
+      anchor: 'Willis &amp; Wu 2022',
+      uml: '<div class="uml-class"><div><b>Parser&lt;T&gt;</b></div><div><i>«pure»</i> then(p: Parser&lt;U&gt;): Parser&lt;(T, U)&gt;<br><i>«pure»</i> or(p: Parser&lt;T&gt;): Parser&lt;T&gt;<br>analizar(entrada: Entrada): Resultado&lt;T&gt;</div></div><div class="uml-note">Una gramática es un valor parser compuesto: token.then(expr).or(grupo).</div>',
+      seq: '<div>cliente → gramatica: analizar(entrada) — gramatica = token.then(expr).or(grupo)</div>' },
     { n: 16, name: 'Tagless Final / Free Monad', origin: 'Nuevo (FP+OO)', group: 'nuevo', mech: ['M1'],
       ref: 'Álgebra abstracta polimórfica para interpretación multi-target del mismo AST',
       desc: 'Encoding de DSLs como interfaces parametrizadas o como datos algebraicos. Para DSLs embebidos donde se necesita variar la interpretación.',
       cons: 'Extensibilidad, modularidad, separación de sintaxis y semántica.',
-      anchor: 'Oliveira et al. 2013 · Löh &amp; Hinze 2006' }
+      anchor: 'Oliveira et al. 2013 · Löh &amp; Hinze 2006',
+      uml: '<div class="uml-class"><div><i>«algebra»</i> <b>Dsl&lt;T&gt;</b></div><div>leer(k: Clave): T<br>escribir(k: Clave, v: Valor): T</div></div><div class="uml-rel">△ ┄ ┄ intérpretes ┄ ┄ △</div><div class="uml-row"><div class="uml-class"><div><b>EjecReal</b></div><div>T = IO</div></div><div class="uml-class"><div><b>EjecPrueba</b></div><div>T = Log</div></div></div>',
+      seq: '<div>cliente → ejecReal: interpretar(programa) ⇒ efectos</div><div>cliente → ejecPrueba: interpretar(programa) ⇒ log</div>' }
   ];
 
   var grid = document.getElementById('catGrid');
@@ -1026,6 +1077,10 @@
         '</div>' +
         '<p class="pat-ref">' + p.ref + '</p>' +
         '<p class="pat-desc">' + p.desc + '</p>' +
+        '<details class="uml-example"><summary>Ejemplo UML</summary>' +
+          '<div class="uml-mini">' + p.uml + '</div>' +
+          '<div class="uml-seq">' + p.seq + '</div>' +
+        '</details>' +
         '<p class="pat-cons"><b>Consecuencias:</b> ' + p.cons + '<br><b>Anclas:</b> ' + p.anchor + '</p>' +
         '</article>';
     }).join('');
