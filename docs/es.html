@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Técnica de Diseño Multiparadigma FP/OO — Universidad del Cauca</title>
+<meta name="description" content="Criterios explícitos para decidir qué paradigma —funcional u orientado a objetos— asume cada responsabilidad del diseño detallado. Técnica, catálogo de 16 patrones, perfil UML ligero y agente /multiparadigm.">
+<style>
+  :root {
+    --bg: #fafafa;
+    --bg-alt: #ffffff;
+    --bg-inset: #f1f0f5;
+    --text: #1d1d27;
+    --text-soft: #54545f;
+    --text-faint: #76767f;
+    --border: #e0e0e8;
+    --accent: #ff6600;
+    --accent-soft: #fff1e5;
+    --accent-strong: #cc5200;
+    --accent-contrast: #ffffff;
+    --ok: #0d7a4f;
+    --ok-soft: #e3f5ec;
+    --warn: #92520a;
+    --warn-soft: #fdf0dd;
+    --fp: #0e7490;
+    --fp-soft: #e0f4f9;
+    --oo: #b45309;
+    --oo-soft: #fdf2e0;
+    --hib: #cc5200;
+    --hib-soft: #fff1e5;
+    --code-bg: #f4f3f8;
+    --shadow: 0 1px 3px rgba(20,20,40,.08), 0 4px 14px rgba(20,20,40,.05);
+  }
+  [data-theme="dark"] {
+    --bg: #14141c;
+    --bg-alt: #1c1c27;
+    --bg-inset: #232330;
+    --text: #ececf2;
+    --text-soft: #b3b3c0;
+    --text-faint: #8e8e9c;
+    --border: #32323f;
+    --accent: #ff6600;
+    --accent-soft: #3d2410;
+    --accent-strong: #ff8533;
+    --accent-contrast: #ffffff;
+    --ok: #4ecf96;
+    --ok-soft: #143527;
+    --warn: #e3a95b;
+    --warn-soft: #3a2c14;
+    --fp: #53c0dd;
+    --fp-soft: #11313b;
+    --oo: #e0a35a;
+    --oo-soft: #392a14;
+    --hib: #ff8533;
+    --hib-soft: #3d2410;
+    --code-bg: #242432;
+    --shadow: 0 1px 3px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  code, .mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: .88em;
+    background: var(--code-bg);
+    padding: .1em .35em;
+    border-radius: 4px;
+  }
+  a { color: var(--accent); }
+  a:hover { color: var(--accent-strong); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg-alt) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 8px; height: 56px; max-width: 1060px; margin: 0 auto; padding: 0 16px; }
+  .nav-brand { font-weight: 700; font-size: .95rem; color: var(--text); text-decoration: none; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+  .nav-brand .dot { width: 10px; height: 10px; border-radius: 3px; background: var(--accent); display: inline-block; flex: none; }
+  .nav-links { display: flex; gap: 2px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a {
+    color: var(--text-soft); text-decoration: none; font-size: .85rem;
+    padding: 6px 10px; border-radius: 6px; white-space: nowrap;
+  }
+  .nav-links a:hover { background: var(--bg-inset); color: var(--text); }
+  .theme-btn {
+    flex: none; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text-soft);
+    width: 36px; height: 36px; border-radius: 8px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .theme-btn:hover { color: var(--text); border-color: var(--text-faint); }
+  .lang-switch {
+    flex: none; display: inline-flex; align-items: stretch; overflow: hidden;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--bg-alt);
+  }
+  .lang-switch a {
+    display: inline-flex; align-items: center; padding: 0 10px; height: 34px;
+    font-size: .78rem; font-weight: 700; letter-spacing: .03em;
+    color: var(--text-soft); text-decoration: none;
+  }
+  .lang-switch a:hover { color: var(--text); background: var(--bg-inset); }
+  .lang-switch a + a { border-left: 1px solid var(--border); }
+  .lang-switch a[aria-current="page"] { background: var(--accent); color: var(--accent-contrast); }
+  .lang-switch a[aria-current="page"]:hover { background: var(--accent-strong); color: var(--accent-contrast); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 64px 0 48px; text-align: center; }
+  .hero h1 { font-size: clamp(1.7rem, 4.5vw, 2.7rem); line-height: 1.15; letter-spacing: -.02em; max-width: 820px; margin: 0 auto; }
+  .hero h1 .grad { color: var(--accent); }
+  .hero .tagline { font-size: clamp(1rem, 2.4vw, 1.2rem); color: var(--text-soft); max-width: 680px; margin: 18px auto 0; }
+  .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+  .badge {
+    font-size: .8rem; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+  .hero-cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none; cursor: pointer;
+    font-size: .95rem; font-weight: 600; padding: 11px 20px; border-radius: 9px; border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--accent); color: var(--accent-contrast); }
+  .btn-primary:hover { background: var(--accent-strong); color: var(--accent-contrast); }
+  .btn-ghost { border-color: var(--border); color: var(--text); background: var(--bg-alt); }
+  .btn-ghost:hover { border-color: var(--text-faint); }
+
+  /* ---------- Sections ---------- */
+  section { padding: 56px 0; border-top: 1px solid var(--border); }
+  .sec-kicker { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); letter-spacing: -.01em; margin: 6px 0 10px; }
+  .sec-lead { color: var(--text-soft); max-width: 760px; margin-bottom: 28px; }
+  h3 { font-size: 1.1rem; margin-bottom: 8px; }
+
+  .pill { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; letter-spacing: .02em; }
+  .pill-fp  { background: var(--fp-soft); color: var(--fp); }
+  .pill-oo  { background: var(--oo-soft); color: var(--oo); }
+  .pill-hib { background: var(--hib-soft); color: var(--hib); }
+  .pill-m   { background: var(--accent-soft); color: var(--accent); }
+  .pill-neutral { background: var(--bg-inset); color: var(--text-soft); }
+
+  .card {
+    background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; box-shadow: var(--shadow);
+  }
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+  /* ---------- Wizard ---------- */
+  .wizard { max-width: 760px; margin: 0 auto; }
+  .wizard-box { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: 28px; }
+  .wizard-progress { display: flex; gap: 6px; margin-bottom: 22px; }
+  .wizard-progress span { height: 5px; flex: 1; border-radius: 99px; background: var(--bg-inset); }
+  .wizard-progress span.on { background: var(--accent); }
+  .wizard-q { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+  .wizard-hint { color: var(--text-soft); font-size: .9rem; margin-bottom: 18px; }
+  .wizard-opts { display: grid; gap: 10px; }
+  .opt-btn {
+    text-align: left; font: inherit; font-size: .95rem; cursor: pointer; color: var(--text);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px;
+    transition: border-color .12s, background .12s;
+  }
+  .opt-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .opt-btn b { display: block; }
+  .opt-btn small { color: var(--text-soft); }
+  .wizard-back {
+    margin-top: 18px; background: none; border: none; color: var(--text-soft); cursor: pointer;
+    font: inherit; font-size: .88rem; padding: 6px 8px; border-radius: 6px;
+  }
+  .wizard-back:hover { color: var(--text); background: var(--bg-inset); }
+
+  .result-head { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+  .result-paradigm { font-size: 1.3rem; font-weight: 800; letter-spacing: -.01em; }
+  .result-justif { color: var(--text-soft); margin: 6px 0 18px; }
+  .result-rows { display: grid; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .result-row { display: grid; grid-template-columns: 158px 1fr; border-top: 1px solid var(--border); }
+  .result-row:first-child { border-top: none; }
+  .result-row dt { background: var(--bg-inset); padding: 12px 14px; font-size: .8rem; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
+  .result-row dd { padding: 12px 14px; font-size: .93rem; }
+  .result-row dd .sub { color: var(--text-soft); font-size: .86rem; display: block; margin-top: 2px; }
+  @media (max-width: 560px) { .result-row { grid-template-columns: 1fr; } .result-row dt { padding-bottom: 4px; } .result-row dd { padding-top: 2px; } }
+  .result-actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .wizard-note { margin-top: 14px; font-size: .82rem; color: var(--text-faint); }
+
+  /* ---------- Mechanisms ---------- */
+  .m6-banner {
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    background: var(--accent-soft); border-radius: 14px; padding: 22px 24px; margin-bottom: 22px;
+  }
+  .m6-banner h3 { color: var(--accent); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .mech-card h3 { display: flex; align-items: center; gap: 10px; }
+  .mech-id {
+    flex: none; width: 38px; height: 38px; border-radius: 9px; background: var(--accent); color: var(--accent-contrast);
+    display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: .92rem;
+  }
+  .mech-block { margin-top: 10px; font-size: .9rem; }
+  .mech-block .lbl { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .lbl-lim { color: var(--warn); }
+  .lbl-prop { color: var(--ok); }
+  .mech-anchor { margin-top: 12px; font-size: .8rem; color: var(--text-faint); border-top: 1px dashed var(--border); padding-top: 9px; }
+
+  /* ---------- Catalog ---------- */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .filters .flabel { font-size: .8rem; font-weight: 700; color: var(--text-soft); margin-right: 4px; }
+  .fbtn {
+    font: inherit; font-size: .82rem; font-weight: 600; cursor: pointer;
+    border: 1px solid var(--border); background: var(--bg-alt); color: var(--text-soft);
+    padding: 5px 13px; border-radius: 999px;
+  }
+  .fbtn:hover { border-color: var(--accent); color: var(--accent); }
+  .fbtn[aria-pressed="true"] { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+  .cat-count { font-size: .85rem; color: var(--text-faint); margin: 6px 0 16px; }
+  .cat-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .pat-card { display: flex; flex-direction: column; gap: 8px; }
+  .pat-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+  .pat-name { font-weight: 700; font-size: 1rem; }
+  .pat-num { color: var(--text-faint); font-size: .8rem; font-weight: 600; }
+  .pat-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pat-ref { font-size: .9rem; font-weight: 600; color: var(--accent); }
+  .pat-desc { font-size: .88rem; color: var(--text-soft); flex: 1; }
+  .pat-cons { font-size: .8rem; color: var(--text-faint); border-top: 1px dashed var(--border); padding-top: 8px; }
+  .pat-cons b { color: var(--text-soft); }
+
+  /* ---------- Steps ---------- */
+  .steps { display: grid; gap: 14px; counter-reset: paso; }
+  .step { display: flex; gap: 16px; }
+  .step-num {
+    flex: none; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent); font-weight: 800;
+    display: flex; align-items: center; justify-content: center; border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .step-body h3 { margin-bottom: 4px; }
+  .step-body p { color: var(--text-soft); font-size: .93rem; }
+  .step-out { display: inline-block; margin-top: 6px; font-size: .8rem; background: var(--ok-soft); color: var(--ok); padding: 2px 10px; border-radius: 999px; font-weight: 600; }
+
+  /* ---------- UML ---------- */
+  .uml-table { width: 100%; border-collapse: collapse; font-size: .9rem; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .uml-wrap { overflow-x: auto; border-radius: 12px; box-shadow: var(--shadow); }
+  .uml-table th { text-align: left; background: var(--bg-inset); padding: 10px 14px; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-soft); }
+  .uml-table td { padding: 10px 14px; border-top: 1px solid var(--border); vertical-align: top; }
+  .uml-table td:first-child { white-space: nowrap; }
+  .uml-sub { font-size: .95rem; font-weight: 700; margin: 26px 0 10px; color: var(--text); }
+
+  /* ---------- Measure ---------- */
+  .dim-card h3 { color: var(--accent); }
+  .dim-card .how { margin-top: 8px; font-size: .85rem; color: var(--text-faint); }
+  .measure-idea { margin-top: 22px; }
+  .big-o { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin: 16px 0 6px; font-weight: 700; }
+  .big-o .o { padding: 10px 18px; border-radius: 10px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .big-o .bad { background: var(--warn-soft); color: var(--warn); }
+  .big-o .good { background: var(--ok-soft); color: var(--ok); }
+  .big-o .arrow { color: var(--text-faint); font-size: 1.3rem; }
+
+  /* ---------- Agent ---------- */
+  .phase-list { display: grid; gap: 10px; }
+  .phase { display: flex; gap: 12px; align-items: baseline; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; }
+  .phase .ph-n { font-weight: 800; color: var(--accent); flex: none; width: 56px; font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+  .phase .ph-t { font-size: .92rem; }
+  .phase .ph-t b { display: block; }
+  .phase .ph-t span { color: var(--text-soft); font-size: .87rem; }
+  .modes { margin-top: 26px; }
+  .mode-card h3 { display: flex; gap: 8px; align-items: center; }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1px solid var(--border); padding: 40px 0 56px; margin-top: 24px; text-align: center; color: var(--text-soft); font-size: .9rem; }
+  footer .authors { font-weight: 600; color: var(--text); }
+  footer .note { margin-top: 14px; font-size: .82rem; color: var(--text-faint); font-style: italic; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" aria-label="Navegación principal">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#inicio"><span class="dot" aria-hidden="true"></span>Multiparadigma FP/OO</a>
+    <div class="nav-links">
+      <a href="#asistente">Asistente</a>
+      <a href="#mecanismos">Mecanismos</a>
+      <a href="#catalogo">Catálogo</a>
+      <a href="#guia">Guía</a>
+      <a href="#uml">Perfil UML</a>
+      <a href="#medir">Medición</a>
+      <a href="#agente">Agente</a>
+    </div>
+    <button id="themeToggle" class="theme-btn" type="button" aria-label="Cambiar tema claro/oscuro">
+      <svg id="iconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <a href="index.html" hreflang="en" lang="en">EN</a>
+      <a href="es.html" hreflang="es" aria-current="page">ES</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero wrap" id="inicio">
+  <h1>Técnica de Diseño <span class="grad">Multiparadigma FP/OO</span></h1>
+  <p class="tagline">Criterios explícitos para decidir qué paradigma —funcional u orientado a objetos— asume cada responsabilidad del diseño detallado. Sin guerras de paradigmas: el dominio decide.</p>
+  <div class="badges">
+    <span class="badge">Universidad del Cauca</span>
+    <span class="badge">Grupo IDIS</span>
+    <span class="badge">68 estudios primarios</span>
+  </div>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="#asistente">Probar el asistente de decisión</a>
+    <a class="btn btn-ghost" href="#catalogo">Ver el catálogo de patrones</a>
+  </div>
+</header>
+
+<!-- ============ ASISTENTE ============ -->
+<section id="asistente">
+  <div class="wrap">
+    <p class="sec-kicker">Asistente interactivo</p>
+    <h2>¿Qué paradigma debe asumir esta responsabilidad?</h2>
+    <p class="sec-lead">Responde unas pocas preguntas sobre la responsabilidad que estás diseñando y obtén la recomendación de la técnica: paradigma, criterio aplicado, mecanismo de abstracción, patrones del catálogo y estereotipos UML. Basado en el scorecard de decisión OO/Funcional (Tabla 4.1 de la técnica).</p>
+    <div class="wizard">
+      <div class="wizard-box" id="wizardBox" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MECANISMOS ============ -->
+<section id="mecanismos">
+  <div class="wrap">
+    <p class="sec-kicker">Sistema 5+1</p>
+    <h2>Los mecanismos de abstracción</h2>
+    <p class="sec-lead">Del cruce entre el corpus de 68 estudios primarios y la clasificación paradigmática de patrones de Narbel (2007) emergen cinco mecanismos de diseño detallado (M1–M5) y un principio arquitectónico rector (M6). Cada mecanismo responde a una <strong>limitación documentada</strong> de los patrones de diseño clásicos.</p>
+
+    <div class="m6-banner">
+      <h3><span class="pill pill-m">M6 · Principio rector</span> Composición de paradigmas por subdominio</h3>
+      <p style="margin-top:8px; font-size:.93rem;">A diferencia de M1–M5, no es un mecanismo de diseño detallado sino el principio arquitectónico que <strong>gobierna</strong> la aplicación de los otros cinco. Responde a la limitación de los métodos de diseño monoparadigma: forzar todo el problema en un solo lenguaje conceptual. Siguiendo a Coplien (2000) y Vranic (2009), la primera decisión de diseño atribuye a cada subdominio del problema —datos, control, concurrencia, presentación— el paradigma más natural; los mecanismos M1–M5 operan después, dentro y entre los subdominios así delimitados.</p>
+      <p class="mech-anchor">Anclas: Coplien — Multi-Paradigm Design · Vranic — feature modeling · lenguajes multiparadigma como Oz.</p>
+    </div>
+
+    <div class="grid grid-2">
+      <article class="card mech-card">
+        <h3><span class="mech-id">M1</span> Álgebras de objetos / Tagless Final</h3>
+        <div class="mech-block"><span class="lbl lbl-lim">Limitación que responde</span><p>Factory + Visitor frente al Expression Problem: extender datos y operaciones simultáneamente obliga a modificar código existente.</p></div>
+        <div class="mech-block"><span class="lbl lbl-prop">Qué propone</span><p>Generalizarlos en una signatura algebraica polimórfica que permite extensión simultánea de ambas dimensiones sin tocar lo existente.</p></div>
+        <p class="mech-anchor">Anclas: Oliveira &amp; Cook 2012 · Oliveira &amp; van der Storm 2015 · Oliveira et al. 2013.</p>
+      </article>
+      <article class="card mech-card">
+        <h3><span class="mech-id">M2</span> Type classes / Generalized Interfaces</h3>
+        <div class="mech-block"><span class="lbl lbl-lim">Limitación que responde</span><p>Adapter y Strategy: dotar de comportamiento nuevo a tipos existentes exige modificarlos o envolverlos, acoplando el diseño a la jerarquía.</p></div>
+        <div class="mech-block"><span class="lbl lbl-prop">Qué propone</span><p>Asociar comportamiento a tipos sin modificar sus definiciones: polimorfismo ad hoc abierto y retroactivo.</p></div>
+        <p class="mech-anchor">Anclas: Wehr &amp; Thiemann (JavaGI) · Odersky et al. (Simplicitly).</p>
+      </article>
+      <article class="card mech-card">
+        <h3><span class="mech-id">M3</span> Tipos algebraicos + Pattern Matching</h3>
+        <div class="mech-block"><span class="lbl lbl-lim">Limitación que responde</span><p>Visitor: lograr descomposición por casos en OO impone double dispatch y el andamiaje accept/visit que contamina las clases base.</p></div>
+        <div class="mech-block"><span class="lbl lbl-prop">Qué propone</span><p>Tipos cerrados con descomposición sintáctica explícita, separando datos de operaciones sin sacrificar el chequeo de exhaustividad.</p></div>
+        <p class="mech-anchor">Anclas: Emir et al. (Matching Objects with Patterns) · Löh &amp; Hinze (Open data types).</p>
+      </article>
+      <article class="card mech-card">
+        <h3><span class="mech-id">M4</span> HOF + Closures + Composición FP</h3>
+        <div class="mech-block"><span class="lbl lbl-lim">Limitación que responde</span><p>Strategy, Command e Iterator: representar comportamiento puro exige levantar jerarquías de clases cuya indirección no aporta valor.</p></div>
+        <div class="mech-block"><span class="lbl lbl-prop">Qué propone</span><p>Valores de primera clase: una lambda como estrategia, un closure como comando, un pipeline map/filter/reduce como iterador.</p></div>
+        <p class="mech-anchor">Anclas: Bringert &amp; Ranta · Sousa &amp; Ferreira · Crichton (Typed Design Patterns).</p>
+      </article>
+      <article class="card mech-card">
+        <h3><span class="mech-id">M5</span> Signals reactivos / Actores / Continuaciones</h3>
+        <div class="mech-block"><span class="lbl lbl-lim">Limitación que responde</span><p>Observer: el acoplamiento sujeto-observadores y la inversión de control manual dispersan el flujo de actualización y dificultan razonar sobre él.</p></div>
+        <div class="mech-block"><span class="lbl lbl-prop">Qué propone</span><p>Propagación declarativa de cambios (signals) o actores que unifican concurrencia hilos+eventos a través de continuaciones explícitas.</p></div>
+        <p class="mech-anchor">Anclas: Salvaneschi et al. (RP comprehension) · Haller &amp; Odersky (Actors that Unify).</p>
+      </article>
+      <article class="card mech-card" style="background: var(--bg-inset); border-style: dashed;">
+        <h3 style="color: var(--text-soft);"><span class="mech-id" style="background: var(--text-faint);">→</span> ¿Cómo se usan?</h3>
+        <p style="font-size:.9rem; color: var(--text-soft); margin-top:8px;">M6 decide primero el paradigma de cada <em>subdominio</em>. Dentro de cada subdominio, los criterios de la técnica (Tabla 4.1) invocan a M1–M5 para cada decisión de diseño detallado, y cada patrón del <a href="#catalogo">catálogo</a> indica el mecanismo que lo sustenta.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATALOGO ============ -->
+<section id="catalogo">
+  <div class="wrap">
+    <p class="sec-kicker">Catálogo</p>
+    <h2>16 patrones reformulados</h2>
+    <p class="sec-lead">Reformulaciones híbridas de patrones GoF y mecanismos de extensibilidad frente al Expression Problem, anclados al corpus de calidad &gt; 2.0. El catálogo es el brazo ejecutor de los criterios: cada patrón indica el mecanismo M1–M5 que lo sustenta. Las reformulaciones pertenecen a sus autores; el aporte de la técnica es la consolidación sistemática, la operacionalización y la actualización.</p>
+
+    <div class="filters" role="group" aria-label="Filtrar por mecanismo">
+      <span class="flabel">Mecanismo:</span>
+      <button class="fbtn" data-fmech="all" aria-pressed="true" type="button">Todos</button>
+      <button class="fbtn" data-fmech="M1" aria-pressed="false" type="button">M1</button>
+      <button class="fbtn" data-fmech="M2" aria-pressed="false" type="button">M2</button>
+      <button class="fbtn" data-fmech="M3" aria-pressed="false" type="button">M3</button>
+      <button class="fbtn" data-fmech="M4" aria-pressed="false" type="button">M4</button>
+      <button class="fbtn" data-fmech="M5" aria-pressed="false" type="button">M5</button>
+    </div>
+    <div class="filters" role="group" aria-label="Filtrar por origen">
+      <span class="flabel">Origen:</span>
+      <button class="fbtn" data-forig="all" aria-pressed="true" type="button">Todos</button>
+      <button class="fbtn" data-forig="gof" aria-pressed="false" type="button">GoF / OO</button>
+      <button class="fbtn" data-forig="fp" aria-pressed="false" type="button">FP</button>
+      <button class="fbtn" data-forig="hib" aria-pressed="false" type="button">Híbrido / Concurrente</button>
+      <button class="fbtn" data-forig="nuevo" aria-pressed="false" type="button">Nuevos</button>
+    </div>
+    <p class="cat-count" id="catCount" aria-live="polite"></p>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+</section>
+
+<!-- ============ GUIA ============ -->
+<section id="guia">
+  <div class="wrap">
+    <p class="sec-kicker">Guía de aplicación</p>
+    <h2>Cuatro pasos, iterables a lo largo del diseño</h2>
+    <p class="sec-lead">La guía organiza la aplicación de la técnica en cuatro pasos secuenciales que pueden iterarse durante el diseño detallado.</p>
+    <div class="steps">
+      <div class="step card">
+        <div class="step-num" aria-hidden="true">1</div>
+        <div class="step-body">
+          <h3>Descomposición y clasificación</h3>
+          <p>Descompón los requisitos en componentes candidatos y aplica el scorecard de decisión (Tabla 4.1) a cada uno. El <a href="#asistente">asistente</a> de esta página automatiza este paso.</p>
+          <span class="step-out">Salida: componentes clasificados como entidad mutable (OO) o valor/función (FP)</span>
+        </div>
+      </div>
+      <div class="step card">
+        <div class="step-num" aria-hidden="true">2</div>
+        <div class="step-body">
+          <h3>Definición de interfaces híbridas</h3>
+          <p>Diseña las interfaces de las clases principales (OO) y, en los puntos de variación que requieren flexibilidad, sustituye interfaces de un solo método por parámetros de tipo función. Esta sustitución aplica el principio Open/Closed mediante composición funcional (Narbel 2007).</p>
+          <span class="step-out">Salida: contratos OO con puntos de variación funcionales</span>
+        </div>
+      </div>
+      <div class="step card">
+        <div class="step-num" aria-hidden="true">3</div>
+        <div class="step-body">
+          <h3>Modelado visual</h3>
+          <p>Construye los diagramas de clases y secuencia con el <a href="#uml">perfil UML ligero</a>, marcando explícitamente los métodos <code>&lt;&lt;pure&gt;&gt;</code> y los <code>&lt;&lt;ValueObject&gt;&gt;</code> para que las decisiones queden visibles desde el diseño.</p>
+          <span class="step-out">Salida: diagramas con decisiones de paradigma explícitas</span>
+        </div>
+      </div>
+      <div class="step card">
+        <div class="step-num" aria-hidden="true">4</div>
+        <div class="step-body">
+          <h3>Refactorización hacia inmutabilidad</h3>
+          <p>Revisa el diseño preliminar buscando reducir el estado mutable compartido. Si una clase OO tiene mayoría de métodos <code>&lt;&lt;pure&gt;&gt;</code>, evalúa transformarla en un módulo funcional o un <code>&lt;&lt;ValueObject&gt;&gt;</code>; si una secuencia procedural se puede sustituir por composición de funciones, hazlo.</p>
+          <span class="step-out">Salida: diseño con estado mutable mínimo y localizado</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ UML ============ -->
+<section id="uml">
+  <div class="wrap">
+    <p class="sec-kicker">Notación</p>
+    <h2>Perfil UML ligero</h2>
+    <p class="sec-lead">Extiende los diagramas de clases y secuencia mediante estereotipos (<code>&lt;&lt;...&gt;&gt;</code>) y valores etiquetados (<code>{...}</code>) <strong>sin modificar el metamodelo de UML</strong>: compatible con herramientas estándar. Continúa la línea de Heinzl &amp; Schreibmann (2018) y responde a la carencia de notación para diseño funcional señalada por Motara (2021).</p>
+
+    <p class="uml-sub">Diagrama de clases — extensiones base (4)</p>
+    <div class="uml-wrap">
+    <table class="uml-table">
+      <thead><tr><th scope="col">Notación</th><th scope="col">Concepto</th><th scope="col">Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>{immutable}</code></td><td>Inmutabilidad</td><td>Etiqueta sobre clase o atributo: el estado no cambia tras la instanciación.</td></tr>
+        <tr><td><code>&lt;&lt;pure&gt;&gt;</code></td><td>Función pura</td><td>Sobre métodos: transparencia referencial; sin lectura ni escritura de estado global.</td></tr>
+        <tr><td><code>&lt;&lt;ValueObject&gt;&gt;</code></td><td>Objeto de valor</td><td>Sobre clase: igualdad por valor, no por referencia; debe ser inmutable.</td></tr>
+        <tr><td><code>(T) -&gt; R</code></td><td>Función de orden superior</td><td>En lugar de tipos primitivos, la firma flecha indica que el parámetro es comportamiento.</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p class="uml-sub">Diagrama de clases — estereotipos derivados del corpus (6)</p>
+    <div class="uml-wrap">
+    <table class="uml-table">
+      <thead><tr><th scope="col">Estereotipo</th><th scope="col">Se aplica a</th><th scope="col">Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;&lt;algebra&gt;&gt;</code></td><td>Interfaz</td><td>Factory genérica que combina creación con interpretación; resuelve el Expression Problem sin métodos <code>accept</code>.</td></tr>
+        <tr><td><code>&lt;&lt;signal&gt;&gt;</code></td><td>Atributo</td><td>Variable cuyo valor se actualiza automáticamente cuando cambian sus dependencias declarativas.</td></tr>
+        <tr><td><code>&lt;&lt;var&gt;&gt;</code></td><td>Atributo</td><td>Variable mutable observable que sirve de fuente para signals; estado mutable con fronteras claras.</td></tr>
+        <tr><td><code>&lt;&lt;typeclass&gt;&gt;</code></td><td>Interfaz</td><td>Interfaz implementable retroactivamente (estilo type classes de Haskell), con dynamic dispatch sin acoplar la jerarquía OO.</td></tr>
+        <tr><td><code>&lt;&lt;extractor&gt;&gt;</code></td><td>Método</td><td>Método <code>unapply</code> que descompone valores en sus componentes para pattern matching, separando estructura de representación.</td></tr>
+        <tr><td><code>&lt;&lt;actor&gt;&gt;</code></td><td>Clase</td><td>Componente con cola de mensajes, mensajería asíncrona y estado encapsulado; unifica concurrencia thread-based y event-based.</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p class="uml-sub">Diagrama de secuencia — marcadores (6)</p>
+    <div class="uml-wrap">
+    <table class="uml-table">
+      <thead><tr><th scope="col">Marcador</th><th scope="col">Descripción</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;&lt;lambda&gt;&gt;</code></td><td>Sobre la flecha del mensaje: el argumento pasado es una función ejecutable.</td></tr>
+        <tr><td><code>&lt;&lt;Lazy&gt;&gt;</code></td><td>Nota adyacente al mensaje: la función pasada se ejecutará posteriormente, no en el momento de la llamada.</td></tr>
+        <tr><td><code>&lt;&lt;react&gt;&gt;</code></td><td>Sobre flechas que propagan eventos en grafos de signals.</td></tr>
+        <tr><td><code>&lt;&lt;send&gt;&gt;</code> / <code>&lt;&lt;receive&gt;&gt;</code></td><td>Envío asíncrono a un actor / procesamiento del mensaje en su buzón.</td></tr>
+        <tr><td><code>&lt;&lt;continuation&gt;&gt;</code></td><td>Sobre flechas que capturan el control para reanudación posterior (CPS, async/await, máquinas de estado extensibles).</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MEDIR ============ -->
+<section id="medir">
+  <div class="wrap">
+    <p class="sec-kicker">Modelo de evaluación</p>
+    <h2>Cómo medir la flexibilidad del diseño</h2>
+    <p class="sec-lead">La flexibilidad no es una propiedad absoluta del software: es relativa a una clase de cambios declarada de antemano (Eden &amp; Mens, 2006). La técnica evalúa el diseño resultante sobre tres dimensiones operativas.</p>
+
+    <div class="grid grid-3">
+      <article class="card dim-card">
+        <h3>Extensibilidad</h3>
+        <p style="font-size:.9rem;">Capacidad de añadir nuevos tipos o nuevas operaciones sin alterar lo que ya existe.</p>
+        <p class="how">Se evalúa con pasos de evolución que introducen un tipo del dominio o una operación sobre los tipos existentes (LOC modificadas vs. añadidas vs. preservadas).</p>
+      </article>
+      <article class="card dim-card">
+        <h3>Modularidad</h3>
+        <p style="font-size:.9rem;">Descomposición en partes cohesivas y débilmente acopladas.</p>
+        <p class="how">Se evalúa con pasos que redefinen un límite arquitectónico o redistribuyen responsabilidades (acoplamiento Ca/Ce, inestabilidad, cohesión).</p>
+      </article>
+      <article class="card dim-card">
+        <h3>Puntos de variación</h3>
+        <p style="font-size:.9rem;">Capacidad de cambiar comportamiento por parámetro o por intercambio de implementaciones.</p>
+        <p class="how">Se evalúa con pasos que reemplazan un algoritmo o introducen un criterio puntual (puntos de variación explícitos enchufables, costo de cableado).</p>
+      </article>
+    </div>
+
+    <div class="card measure-idea">
+      <h3>La idea central: declara los pasos de evolución <em>antes</em> de medir</h3>
+      <p style="font-size:.93rem; color:var(--text-soft); margin-top:6px;">Un «paso de evolución» formaliza un cambio anticipado: problema original, problema modificado, implementación previa e implementación ajustada. Medir la flexibilidad se reduce a medir el costo de transformar la primera implementación en la segunda: cuántos módulos cambian, ponderados por una métrica de complejidad (LOC, complejidad ciclomática, tiempo cronometrado). La declaración previa del conjunto de pasos es esencial: evita que la elección posterior sesgue el resultado.</p>
+      <div class="big-o" aria-label="Interpretación asintótica del costo de evolución">
+        <span class="o bad">Costo O(|N|) — difícil</span>
+        <span class="arrow" aria-hidden="true">→</span>
+        <span class="o good">Costo O(1) — fácil</span>
+      </div>
+      <p style="font-size:.88rem; color:var(--text-soft); text-align:center;">Un paso es <strong>fácil</strong> si su costo no crece con el tamaño de la implementación (constante, O(1)) y <strong>difícil</strong> si crece linealmente (O(|N|)) respecto a, por ejemplo, el número de tipos u operaciones del dominio. La técnica es ventajosa cuando desplaza pasos seleccionados de O(|N|) a O(1) <em>sin degradar el costo de los demás</em>.</p>
+      <p style="font-size:.82rem; color:var(--text-faint); margin-top:10px;">Cambios anticipados estándar del caso de estudio: (1) nueva operación sobre datos existentes, (2) nuevo dato/nodo sobre operaciones existentes, (3) nueva variante de tipo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AGENTE ============ -->
+<section id="agente">
+  <div class="wrap">
+    <p class="sec-kicker">Herramienta</p>
+    <h2>El agente <code>/multiparadigm</code></h2>
+    <p class="sec-lead">La técnica está operacionalizada como un comando portable (Claude Code/Cowork, GitHub Copilot, Cursor, ChatGPT/Grok) que analiza código bajo el enfoque multiparadigma y propone refactorings justificados con los criterios, mecanismos y patrones de esta página. No emite veredictos «OO es mejor» o «FP es mejor»: sigue a Coplien — el paradigma lo elige el dominio.</p>
+
+    <h3 style="margin-bottom:12px;">Las 6 fases del análisis</h3>
+    <div class="phase-list">
+      <div class="phase"><span class="ph-n">Fase 1</span><div class="ph-t"><b>Detección</b><span>Lenguaje, balance de señales OO/FP y subdominio del código (CRUD, AST/intérprete, pipeline ETL, parser…).</span></div></div>
+      <div class="phase"><span class="ph-n">Fase 2</span><div class="ph-t"><b>Reporte de patrones</b><span>Patrones del catálogo (o equivalentes ad hoc) detectados, su forma actual y tensiones conocidas (p. ej. Expression Problem).</span></div></div>
+      <div class="phase"><span class="ph-n">Fase 3</span><div class="ph-t"><b>Reglas de negocio implícitas</b><span>Reglas mezcladas con la mecánica del código, con paradigma sugerido para encapsular cada una.</span></div></div>
+      <div class="phase"><span class="ph-n">Fase 4</span><div class="ph-t"><b>Aplicación de la técnica</b><span>Para cada hallazgo: criterio de asignación (1–6), mecanismo (M1–M6) y categoría de refactoring (1–8).</span></div></div>
+      <div class="phase"><span class="ph-n">Fase 5</span><div class="ph-t"><b>Propuesta de refactoring</b><span>Diff conceptual, código «after» con estereotipos UML como comentarios y los cambios anticipados que el nuevo diseño absorbe.</span></div></div>
+      <div class="phase"><span class="ph-n">Fase 6</span><div class="ph-t"><b>Delta de flexibilidad</b><span>Antes/después por dimensión (extensibilidad, modularidad, puntos de variación) más un Flex-Score agregado. Deltas honestos: si no mejora, lo dice.</span></div></div>
+    </div>
+
+    <div class="modes">
+      <h3 style="margin-bottom:12px;">Tres modos de decisión (human-in-the-loop)</h3>
+      <div class="grid grid-3">
+        <article class="card mode-card">
+          <h3><span class="pill pill-fp">Autónoma</span></h3>
+          <p style="font-size:.9rem; color:var(--text-soft); margin-top:8px;">Cuando un hallazgo coincide de forma inequívoca con un criterio del scorecard —p. ej. una transformación pura implementada con estado mutable accidental—, el agente aplica el criterio y registra la justificación sin consultar.</p>
+        </article>
+        <article class="card mode-card">
+          <h3><span class="pill pill-oo">Guiada</span></h3>
+          <p style="font-size:.9rem; color:var(--text-soft); margin-top:8px;">Cuando la evidencia es ambigua o el cambio afecta contratos públicos del módulo, el agente presenta las alternativas con su anclaje a criterios y pregunta al desarrollador, que decide. La interacción queda registrada.</p>
+        </article>
+        <article class="card mode-card">
+          <h3><span class="pill pill-hib">Auditoría universal</span></h3>
+          <p style="font-size:.9rem; color:var(--text-soft); margin-top:8px;">Toda modificación —autónoma o guiada— se entrega como propuesta revisable (estilo pull request) que los desarrolladores aprueban, ajustan o rechazan. Ningún cambio entra al diseño sin revisión humana.</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="hero-cta" style="margin-top:30px; justify-content:flex-start;">
+      <a class="btn btn-primary" href="https://github.com/philipretl/multiparadigm-skill" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        Ver en GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <p class="authors">Andrés Felipe Vega Noguera · Yeison David Mosquera Navarro</p>
+    <p>Director: PhD. Julio Ariel Hurtado Alegría</p>
+    <p>Universidad del Cauca — Grupo IDIS · 2026</p>
+    <p class="note">Trabajo de investigación de pregrado; evaluación empírica en curso.</p>
+  </div>
+</footer>
+
+<script>
+/* =================== Tema claro/oscuro =================== */
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('themeToggle');
+  var sun = document.getElementById('iconSun');
+  var moon = document.getElementById('iconMoon');
+  function systemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function apply(theme) {
+    root.setAttribute('data-theme', theme);
+    var dark = theme === 'dark';
+    sun.style.display = dark ? 'none' : '';
+    moon.style.display = dark ? '' : 'none';
+    btn.setAttribute('aria-label', dark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('mp-theme'); } catch (e) {}
+  apply(saved || systemTheme());
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+    var s = null;
+    try { s = localStorage.getItem('mp-theme'); } catch (err) {}
+    if (!s) apply(e.matches ? 'dark' : 'light');
+  });
+  btn.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('mp-theme', next); } catch (e) {}
+    apply(next);
+  });
+})();
+
+/* =================== Asistente de decisión =================== */
+(function () {
+  var box = document.getElementById('wizardBox');
+
+  /* Preguntas. Cada opción apunta a otra pregunta (q:) o a un resultado (r:). */
+  var QUESTIONS = {
+    q1: {
+      depth: 1,
+      q: '¿Cuál es la naturaleza principal de la responsabilidad que vas a diseñar?',
+      hint: 'Piensa en un componente concreto: una clase, un módulo, un servicio, una función.',
+      opts: [
+        { t: 'Representar una entidad del dominio', s: 'Tiene identidad propia y ciclo de vida: nace, cambia, muere (usuario, sesión, pedido).', go: 'q_entidad' },
+        { t: 'Transformar datos', s: 'Recibe una entrada y produce una salida (cálculos, validaciones, ETL, serialización).', go: 'q_transform' },
+        { t: 'Parametrizar o inyectar comportamiento', s: 'Un algoritmo o criterio intercambiable: ordenamiento, filtrado, política de precios.', go: 'q_comportamiento' },
+        { t: 'Modelar una familia de tipos con operaciones', s: 'Variantes de datos + operaciones sobre ellas: AST, tipos de documento, eventos de dominio.', go: 'q_crecimiento' },
+        { t: 'Coordinar concurrencia, eventos o reactividad', s: 'Varias cosas pasan a la vez o los valores deben propagarse al cambiar.', go: 'q_concurrencia' }
+      ]
+    },
+    q_entidad: {
+      depth: 2,
+      q: '¿Esa entidad debe procesar mensajes de forma concurrente?',
+      hint: 'Por ejemplo, varios hilos o clientes interactuando con ella a la vez.',
+      opts: [
+        { t: 'No: su estado cambia de forma secuencial y controlada', go: 'r_oo_entidad' },
+        { t: 'Sí: recibe mensajes concurrentes y debe proteger su estado', go: 'r_actor' }
+      ]
+    },
+    q_transform: {
+      depth: 2,
+      q: '¿La transformación necesita mantener historial de estados internos o una máquina de estados?',
+      hint: 'Criterio 1.2 de la técnica: la frontera está en si la salida depende solo de la entrada.',
+      opts: [
+        { t: 'No: es un flujo tipo pipeline', s: 'La salida de una operación es la entrada de la siguiente, sin modificar el dato original.', go: 'r_fp_pipeline' },
+        { t: 'Sí: requiere historial o máquina de estados', s: 'Estados internos complejos que evolucionan entre invocaciones.', go: 'r_oo_estado' }
+      ]
+    },
+    q_comportamiento: {
+      depth: 2,
+      q: '¿Qué tan complejo es el comportamiento a inyectar?',
+      hint: 'Criterio 2.1: la frontera está entre una operación puntual y un colaborador con estado.',
+      opts: [
+        { t: 'Simple: una operación única y puntual', s: 'Un criterio de filtrado, una fórmula de cálculo de impuestos.', go: 'r_fp_lambda' },
+        { t: 'Complejo: mantiene estado propio o tiene varios métodos relacionados', s: 'Por ejemplo, un driver de base de datos.', go: 'q_retro' }
+      ]
+    },
+    q_retro: {
+      depth: 3,
+      q: '¿Necesitas que tipos ya existentes —que no puedes modificar— adopten ese comportamiento?',
+      hint: 'Implementación retroactiva: añadir la interfaz a tipos de terceros o de otros módulos.',
+      opts: [
+        { t: 'No: controlo la jerarquía de implementaciones', go: 'r_oo_strategy' },
+        { t: 'Sí: necesito implementación retroactiva sobre tipos ajenos', go: 'r_typeclass' }
+      ]
+    },
+    q_crecimiento: {
+      depth: 2,
+      q: '¿Qué prevés que crecerá con más frecuencia?',
+      hint: 'Esta es la formulación práctica del Expression Problem (criterio 2.2).',
+      opts: [
+        { t: 'Nuevos tipos de datos o variantes', s: 'Las operaciones permanecen estables.', go: 'r_oo_tipos' },
+        { t: 'Nuevas operaciones sobre tipos existentes', s: 'Los tipos permanecen estables.', go: 'r_fp_ops' },
+        { t: 'Ambas dimensiones a la vez', s: 'Nuevos tipos Y nuevas operaciones simultáneamente.', go: 'r_hibrido_oa' }
+      ]
+    },
+    q_concurrencia: {
+      depth: 2,
+      q: '¿Qué forma toma esa coordinación?',
+      hint: 'Criterio 4.1 y criterio de concurrencia/reactividad: separar el «qué» (FP) del «quién» (OO actor).',
+      opts: [
+        { t: 'Propagación de cambios', s: 'Valores derivados que deben actualizarse cuando cambian sus fuentes (UI, datos reactivos).', go: 'r_signal' },
+        { t: 'Unidades concurrentes que se comunican por mensajes', s: 'Workers, sesiones, dispositivos: cada uno con su estado.', go: 'r_actor' },
+        { t: 'Procesamiento paralelo de datos', s: 'Alta concurrencia sobre colecciones, sin necesidad de estado compartido.', go: 'r_fp_inmutable' }
+      ]
+    }
+  };
+
+  /* Resultados. Fieles a la Tabla 4.1 (scorecard) + criterios §4.2 + catálogo §4.5 + perfil §4.3. */
+  var RESULTS = {
+    r_oo_entidad: {
+      paradigm: 'Orientado a objetos',
+      pclass: 'oo',
+      detail: 'Clases con encapsulación',
+      justif: 'Entidad con identidad y estado mutable: la encapsulación protege la integridad del estado (fila 1 del scorecard). La inmutabilidad evita efectos colaterales en los valores que la entidad exponga.',
+      criterio: 'Criterio 1.1 — Identidad vs. Valor',
+      criterioSub: 'OO cuando el componente requiere identidad única y ciclo de vida; FP para los valores sin identidad que lo rodean (montos, coordenadas, eventos).',
+      mecanismo: 'Gobernado por M6 (el subdominio de entidades reclama OO); sin mecanismo M1–M5 específico.',
+      patrones: 'Extensible State Machine (#6) si la entidad encierra una máquina de estados · Immutable Factory Method (#12) para jerarquías de valores inmutables asociadas.',
+      uml: '&lt;&lt;var&gt;&gt; sobre los atributos mutables · {immutable} y &lt;&lt;ValueObject&gt;&gt; sobre los valores que la entidad expone.'
+    },
+    r_actor: {
+      paradigm: 'Híbrido (actor)',
+      pclass: 'hib',
+      detail: 'OO para el «quién» (identidad, buzón), FP para el «qué» (procesamiento puro del mensaje)',
+      justif: 'Actores y reactividad cruzan ambos paradigmas: el actor encapsula identidad y estado mutable controlado por mensajes, y unifica concurrencia thread-based y event-based mediante continuaciones.',
+      criterio: 'Criterio 4.1 — Procesamiento paralelo / concurrencia y reactividad',
+      criterioSub: 'Preferir abstracciones que separen el «qué» (FP) del «quién» (OO actor); la sincronización explícita con bloqueos es propensa a errores.',
+      mecanismo: 'M5 — Signals reactivos / Actores / Continuaciones',
+      patrones: 'Actor Unification (#10): actores que unifican hilos y eventos vía continuaciones como closures.',
+      uml: '&lt;&lt;actor&gt;&gt; sobre la clase · &lt;&lt;send&gt;&gt; / &lt;&lt;receive&gt;&gt; en secuencia · &lt;&lt;continuation&gt;&gt; donde se capture el control.'
+    },
+    r_fp_pipeline: {
+      paradigm: 'Funcional',
+      pclass: 'fp',
+      detail: 'Pipelines de transformación',
+      justif: 'Flujo de transformación de datos (ETL): modularidad por composición de funciones (fila 2 del scorecard). La salida de una operación es la entrada de la siguiente sin modificar el dato original (transparencia referencial).',
+      criterio: 'Criterio 1.2 — Transformación de datos',
+      criterioSub: 'FP cuando se requiere un flujo tipo pipeline; OO solo si la manipulación exige historial de estados internos complejos.',
+      mecanismo: 'M4 — HOF + Closures + Composición FP',
+      patrones: 'Iterator reformulado (#3): stream + map/filter/reduce · Decorator reformulado (#4): composición de funciones para envolturas puras.',
+      uml: '&lt;&lt;pure&gt;&gt; sobre los métodos · {immutable} sobre los datos · firma (T) -&gt; R en los parámetros de comportamiento.'
+    },
+    r_oo_estado: {
+      paradigm: 'Orientado a objetos',
+      pclass: 'oo',
+      detail: 'Objeto con estado interno / máquina de estados',
+      justif: 'Cuando la manipulación de datos requiere mantener historial de estados internos complejos o máquinas de estado, el criterio 1.2 asigna la responsabilidad a OO: la encapsulación delimita la mutación.',
+      criterio: 'Criterio 1.2 — Transformación de datos (caso con estado)',
+      criterioSub: 'La frontera es la transparencia referencial: si la salida depende de la historia, hay identidad y estado que proteger.',
+      mecanismo: 'M5 cuando la máquina de estados deba extenderse modularmente (continuaciones delimitadas).',
+      patrones: 'Extensible State Machine (#6): herencia OO + delimited continuations FP para extensión modular de estados y eventos.',
+      uml: '&lt;&lt;var&gt;&gt; sobre el estado mutable · &lt;&lt;continuation&gt;&gt; en secuencia si hay captura de control.'
+    },
+    r_fp_lambda: {
+      paradigm: 'Funcional',
+      pclass: 'fp',
+      detail: 'Lambdas / funciones de orden superior',
+      justif: 'Comportamiento parametrizable simple: configurabilidad ligera sin sobrecarga de clases (fila 3 del scorecard). Las lambdas inyectan comportamiento sin la verbosidad de clases anónimas.',
+      criterio: 'Criterio 2.1 — Estrategias y algoritmos (puntos de variación)',
+      criterioSub: 'FP (lambdas) cuando el comportamiento es una operación única y puntual: un criterio de filtrado, una fórmula de cálculo.',
+      mecanismo: 'M4 — HOF + Closures + Composición FP',
+      patrones: 'Strategy reformulado (#1): lambda como estrategia inyectable; sustituye la jerarquía Strategy/ConcreteStrategy por un parámetro funcional.',
+      uml: 'Firma (T) -&gt; R en el parámetro · &lt;&lt;lambda&gt;&gt; sobre el mensaje en secuencia · &lt;&lt;pure&gt;&gt; si no toca estado global.'
+    },
+    r_oo_strategy: {
+      paradigm: 'Orientado a objetos',
+      pclass: 'oo',
+      detail: 'Interfaces / patrón Estrategia clásico',
+      justif: 'Comportamiento parametrizable complejo: polimorfismo con estado e implementaciones intercambiables (fila 4 del scorecard). La interfaz OO da cabida a múltiples métodos relacionados y estado propio.',
+      criterio: 'Criterio 2.1 — Estrategias y algoritmos (puntos de variación)',
+      criterioSub: 'OO cuando la estrategia es compleja, mantiene su propio estado o tiene múltiples métodos relacionados (p. ej., un driver de base de datos).',
+      mecanismo: 'Sin mecanismo M1–M5: la variante funcional del Strategy (M4) aplica solo al caso simple.',
+      patrones: 'Strategy (#1) en su forma OO. Considera además el paso 2 de la guía: en los puntos de variación simples dentro de la interfaz, usa parámetros de tipo función.',
+      uml: 'Interfaz UML estándar · firma (T) -&gt; R en los métodos que acepten comportamiento puntual.'
+    },
+    r_typeclass: {
+      paradigm: 'Híbrido (FP+OO)',
+      pclass: 'hib',
+      detail: 'Type classes / interfaces generalizadas',
+      justif: 'Dotar de comportamiento nuevo a tipos existentes sin modificarlos ni envolverlos: polimorfismo ad hoc abierto y retroactivo, sin acoplar el diseño a la jerarquía (limitación documentada de Adapter y Strategy).',
+      criterio: 'Criterio 2.1 / 2.2 — comportamiento complejo con extensión retroactiva',
+      criterioSub: 'Cuando ni la herencia ni el wrapping son viables porque los tipos no se pueden tocar, el mecanismo indicado son las type classes.',
+      mecanismo: 'M2 — Type classes / Generalized Interfaces',
+      patrones: 'Type Class / Generalized Interface (#13) · Datatype-Generic (#7) para abstracción sobre la forma de los datos · Component Prototyping (#9) para composición a nivel de tipos.',
+      uml: '&lt;&lt;typeclass&gt;&gt; sobre la interfaz implementable retroactivamente.'
+    },
+    r_oo_tipos: {
+      paradigm: 'Orientado a objetos',
+      pclass: 'oo',
+      detail: 'Jerarquías abiertas de subtipos',
+      justif: 'Nuevos tipos de datos frecuentes con operaciones estables: extensibilidad vía polimorfismo de subtipo (fila 5 del scorecard). Cada variante nueva es una clase nueva; nada existente se modifica (Open/Closed vía herencia).',
+      criterio: 'Criterio 2.2 — Extensión de funcionalidad (Expression Problem, dimensión de datos)',
+      criterioSub: 'OO (herencia, polimorfismo) cuando el sistema crecerá agregando nuevos tipos o variantes pero las operaciones permanecen estables.',
+      mecanismo: 'Etiquetado M1/M3 en la técnica: la elección de esta dimensión es la mitad OO del Expression Problem.',
+      patrones: 'Immutable Factory Method (#12) si la jerarquía expone valores inmutables reutilizables.',
+      uml: 'Jerarquía UML estándar · {immutable} y &lt;&lt;ValueObject&gt;&gt; donde las variantes sean valores.'
+    },
+    r_fp_ops: {
+      paradigm: 'Funcional',
+      pclass: 'fp',
+      detail: 'ADT sellado + pattern matching, HOF',
+      justif: 'Nuevas operaciones frecuentes sobre tipos estables: extensibilidad vía nuevas funciones sobre tipos cerrados (fila 6 del scorecard). Cada operación nueva es una función externa; las definiciones de datos no se tocan.',
+      criterio: 'Criterio 2.2 — Extensión de funcionalidad (Expression Problem, dimensión de operaciones)',
+      criterioSub: 'FP (composición) cuando el sistema crecerá agregando nuevas operaciones sobre tipos de datos existentes.',
+      mecanismo: 'M3 — Tipos algebraicos + Pattern Matching',
+      patrones: 'Visitor reformulado (#2): pattern matching sobre ADT + función externa · Extractor (#14) si los valores vienen de objetos encapsulados que debes descomponer.',
+      uml: '&lt;&lt;extractor&gt;&gt; sobre los métodos unapply · &lt;&lt;pure&gt;&gt; sobre las operaciones · {immutable} sobre el ADT.'
+    },
+    r_hibrido_oa: {
+      paradigm: 'Híbrido',
+      pclass: 'hib',
+      detail: 'Object algebra / tagless final',
+      justif: 'Nuevos tipos y nuevas operaciones simultáneos: extensibilidad bidimensional, resuelve el Expression Problem (fila 8 híbrida del scorecard). Una signatura algebraica polimórfica permite extender ambas dimensiones sin tocar lo existente.',
+      criterio: 'Criterio 2.2 / Criterio 6 — Frontera de extensibilidad simultánea (datos × operaciones)',
+      criterioSub: 'Cuando el cambio anticipado abre ambas dimensiones, las álgebras de objetos o las codificaciones tagless final ofrecen el cierre canónico. Si solo abre una dimensión, los criterios 1–5 bastan.',
+      mecanismo: 'M1 — Álgebras de objetos / Tagless Final',
+      patrones: 'Object Algebra (#11): factory genérica + visitor sin métodos accept · Tagless Final / Free Monad (#16) para interpretación multi-target del mismo AST · Datatype-Generic (#7) como alternativa con virtual classes.',
+      uml: '&lt;&lt;algebra&gt;&gt; sobre la interfaz que combina creación con interpretación.'
+    },
+    r_fp_inmutable: {
+      paradigm: 'Funcional',
+      pclass: 'fp',
+      detail: 'Inmutabilidad + funciones puras',
+      justif: 'Alta concurrencia: reducción de efectos colaterales y bloqueos (fila de concurrencia del scorecard). Sin estado compartido mutable se eliminan condiciones de carrera y se facilita el paralelismo seguro.',
+      criterio: 'Criterio 4.1 — Procesamiento paralelo',
+      criterioSub: 'FP en escenarios de alta concurrencia donde se puede explotar la inmutabilidad y las funciones puras; la sincronización explícita OO (bloqueos, semáforos) es propensa a errores.',
+      mecanismo: 'M5 — Signals reactivos / Actores / Continuaciones (vertiente de concurrencia)',
+      patrones: 'Iterator reformulado (#3): los pipelines map/filter/reduce admiten paralelización implícita al no tener estado mutable de iteración.',
+      uml: '{immutable} sobre los datos compartidos · &lt;&lt;pure&gt;&gt; sobre las operaciones.'
+    },
+    r_signal: {
+      paradigm: 'Híbrido (reactivo)',
+      pclass: 'hib',
+      detail: 'Signals declarativos sobre fuentes mutables acotadas',
+      justif: 'Propagación declarativa de cambios: los valores derivados se actualizan automáticamente cuando cambian sus dependencias, sin el acoplamiento sujeto-observadores ni la inversión de control manual del Observer clásico. Evidencia empírica de mejor comprensibilidad y menor acoplamiento.',
+      criterio: 'Criterio de concurrencia y reactividad (4.1 ampliado)',
+      criterioSub: 'La reactividad cruza ambos paradigmas: fuentes mutables observables (OO acotado) + derivaciones declarativas (FP).',
+      mecanismo: 'M5 — Signals reactivos / Actores / Continuaciones',
+      patrones: 'Observer reformulado (#5): reactive streams / signals declarativos.',
+      uml: '&lt;&lt;signal&gt;&gt; sobre los valores derivados · &lt;&lt;var&gt;&gt; sobre las fuentes mutables · &lt;&lt;react&gt;&gt; en secuencia.'
+    }
+  };
+
+  var MAX_DEPTH = 3;
+  var history = [];
+
+  function esc(s) { return s; } /* contenido controlado, definido arriba */
+
+  function renderQuestion(id) {
+    var q = QUESTIONS[id];
+    var html = '<div class="wizard-progress" aria-hidden="true">';
+    for (var i = 1; i <= MAX_DEPTH; i++) html += '<span class="' + (i <= q.depth ? 'on' : '') + '"></span>';
+    html += '</div>';
+    html += '<p class="wizard-q">' + q.q + '</p>';
+    if (q.hint) html += '<p class="wizard-hint">' + q.hint + '</p>';
+    html += '<div class="wizard-opts" role="group" aria-label="Opciones">';
+    q.opts.forEach(function (o, idx) {
+      html += '<button class="opt-btn" type="button" data-go="' + o.go + '">' +
+              '<b>' + esc(o.t) + '</b>' + (o.s ? '<small>' + esc(o.s) + '</small>' : '') + '</button>';
+    });
+    html += '</div>';
+    if (history.length > 0) html += '<button class="wizard-back" type="button" data-back="1">&larr; Volver a la pregunta anterior</button>';
+    box.innerHTML = html;
+    bind(id);
+  }
+
+  function pillFor(pclass) {
+    if (pclass === 'fp') return '<span class="pill pill-fp">Funcional</span>';
+    if (pclass === 'oo') return '<span class="pill pill-oo">Orientado a objetos</span>';
+    return '<span class="pill pill-hib">Híbrido</span>';
+  }
+
+  function renderResult(id) {
+    var r = RESULTS[id];
+    var html = '<div class="result-head">' + pillFor(r.pclass) + '</div>' +
+      '<p class="result-paradigm">' + r.paradigm + ' — ' + r.detail + '</p>' +
+      '<p class="result-justif">' + r.justif + '</p>' +
+      '<dl class="result-rows">' +
+      '<div class="result-row"><dt>Criterio</dt><dd>' + r.criterio + '<span class="sub">' + r.criterioSub + '</span></dd></div>' +
+      '<div class="result-row"><dt>Mecanismo</dt><dd>' + r.mecanismo + '</dd></div>' +
+      '<div class="result-row"><dt>Patrones sugeridos</dt><dd>' + r.patrones + '</dd></div>' +
+      '<div class="result-row"><dt>Estereotipos UML</dt><dd><code style="white-space:normal;">' + r.uml + '</code></dd></div>' +
+      '</dl>' +
+      '<div class="result-actions">' +
+      '<button class="btn btn-primary" type="button" data-restart="1">Analizar otra responsabilidad</button>' +
+      '<a class="btn btn-ghost" href="#catalogo">Ver patrones en el catálogo</a>' +
+      '</div>' +
+      '<p class="wizard-note">Recomendación derivada del scorecard de decisión OO/Funcional de la técnica (Tabla 4.1) y de sus criterios por dimensión. Recuerda el principio rector M6: la primera decisión es por subdominio; estos criterios operan dentro de él.</p>';
+    box.innerHTML = html;
+    bind(null);
+  }
+
+  function bind(currentId) {
+    box.querySelectorAll('[data-go]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var go = b.getAttribute('data-go');
+        history.push(currentId);
+        if (go.indexOf('r_') === 0) renderResult(go); else renderQuestion(go);
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+    var back = box.querySelector('[data-back]');
+    if (back) back.addEventListener('click', function () {
+      var prev = history.pop();
+      renderQuestion(prev || 'q1');
+    });
+    var restart = box.querySelector('[data-restart]');
+    if (restart) restart.addEventListener('click', function () {
+      history = [];
+      renderQuestion('q1');
+    });
+  }
+
+  renderQuestion('q1');
+})();
+
+/* =================== Catálogo filtrable =================== */
+(function () {
+  /* Datos fieles a la Tabla 4.3 y a las descripciones del catálogo (§4.5). */
+  var PATTERNS = [
+    { n: 1, name: 'Strategy', origin: 'GoF (OO)', group: 'gof', mech: ['M4'],
+      ref: 'Lambda como estrategia inyectable',
+      desc: 'Reemplaza la jerarquía clásica Strategy/ConcreteStrategy por un parámetro funcional. Aplica cuando la variabilidad es de comportamiento puro y la jerarquía OO añade indirección sin valor.',
+      cons: 'Extensibilidad y configurabilidad sin nuevas clases.',
+      anchor: 'Narbel 2007 · Crichton 2023' },
+    { n: 2, name: 'Visitor', origin: 'GoF (OO)', group: 'gof', mech: ['M3', 'M1'],
+      ref: 'Pattern matching + función externa; alternativa: object algebra',
+      desc: 'Reemplaza el double dispatch del Visitor con extractores o case classes, o con object algebras para resolver simultáneamente extensión de datos y de operaciones.',
+      cons: 'Extensibilidad bidimensional, modularidad mejorada.',
+      anchor: 'Emir et al. · Oliveira &amp; Cook 2012 · EVF (Zhang 2017)' },
+    { n: 3, name: 'Iterator', origin: 'GoF (OO)', group: 'gof', mech: ['M4'],
+      ref: 'Stream + map/filter/reduce; traversal datatype-generic',
+      desc: 'Reemplaza los iteradores externos del patrón GoF por pipelines de orden superior.',
+      cons: 'Composicionalidad, ausencia de estado mutable de iteración, paralelización implícita.',
+      anchor: 'Bringert &amp; Ranta 2006 · Gibbons 2007' },
+    { n: 4, name: 'Decorator', origin: 'GoF (OO)', group: 'gof', mech: ['M4'],
+      ref: 'Composición de funciones / wrapping con HOF',
+      desc: 'Reemplaza decoradores OO por composición de funciones cuando los decoradores son puros y no necesitan estado entre llamadas.',
+      cons: 'Simplicidad y reusabilidad.',
+      anchor: 'Bringert &amp; Ranta 2006 · Sousa &amp; Ferreira 2012' },
+    { n: 5, name: 'Observer', origin: 'GoF (OO)', group: 'gof', mech: ['M5'],
+      ref: 'Reactive streams / signals declarativos',
+      desc: 'Reemplaza Observer/Subject por signals reactivos; hay evidencia empírica de mejor comprensibilidad y menor acoplamiento.',
+      cons: 'Mantenibilidad mejorada, modularidad.',
+      anchor: 'Salvaneschi et al. 2017' },
+    { n: 6, name: 'Extensible State Machine', origin: 'OO', group: 'gof', mech: ['M5'],
+      ref: 'State machine extensible con tipos genéricos y dispatch funcional',
+      desc: 'Combina herencia OO con delimited continuations FP para permitir extensión modular de estados y eventos. Para máquinas de estado complejas que requieren extensión por subclasificación.',
+      cons: 'Extensibilidad, mantenibilidad, modularidad.',
+      anchor: 'Chin &amp; Millstein 2008 · JavaGI' },
+    { n: 7, name: 'Datatype-Generic', origin: 'FP', group: 'fp', mech: ['M2'],
+      ref: 'OO datatype-generic con typeclasses / generic interfaces',
+      desc: 'Encoding extensible vía virtual classes en Scala: articula traits y type members con polimorfismo paramétrico para resolver el Expression Problem bidimensionalmente.',
+      cons: 'Extensibilidad, modularidad, reusabilidad.',
+      anchor: 'Moors et al. 2006 · Oliveira 2015' },
+    { n: 8, name: 'Almost Compositional', origin: 'FP', group: 'fp', mech: ['M4'],
+      ref: 'Patrón funcional aplicado en OO con monadas / aplicativos',
+      desc: 'Ahorra boilerplate en transformaciones tipadas que dejan la mayoría de constructores intactos; típico de intérpretes y compiladores.',
+      cons: 'Mantenibilidad y reusabilidad.',
+      anchor: 'Bringert &amp; Ranta 2006' },
+    { n: 9, name: 'Component Prototyping', origin: 'Híbrido', group: 'hib', mech: ['M2'],
+      ref: 'Type-level approach con type classes y functional dependencies',
+      desc: 'Composición de componentes a nivel de tipos mediante multi-parameter type classes y functional dependencies.',
+      cons: 'Prototipado rápido con seguridad de tipos al componer componentes.',
+      anchor: 'Barbosa et al. 2007' },
+    { n: 10, name: 'Actor Unification', origin: 'Concurrente', group: 'hib', mech: ['M5'],
+      ref: 'Actores que unifican hilos y eventos vía continuaciones',
+      desc: 'Actores que unifican concurrencia thread-based y event-based mediante continuaciones como closures.',
+      cons: 'Modularidad, extensibilidad de modelos de concurrencia, performance ajustable.',
+      anchor: 'Haller &amp; Odersky 2007' },
+    { n: 11, name: 'Object Algebra', origin: 'Nuevo (FP+OO)', group: 'nuevo', mech: ['M1'],
+      ref: 'Generalización de Factory + Visitor que resuelve el Expression Problem',
+      desc: 'Factory genérica más visitor sin métodos accept, parametrizada en una signatura algebraica. Permite extensión bidimensional: nuevos tipos y nuevas operaciones sin tocar lo existente.',
+      cons: 'Extensibilidad, modularidad y reusabilidad máximas.',
+      anchor: 'Oliveira &amp; Cook 2012 · Oliveira et al. 2013/2015' },
+    { n: 12, name: 'Immutable Factory Method', origin: 'Nuevo (OO con valores FP)', group: 'nuevo', mech: ['M2'],
+      ref: 'Genéricos + default methods + factory tipo-específico sobre tipos inmutables',
+      desc: 'Combina Factory Method clásico con generics e interfaces de Java 8 para reutilizar métodos en jerarquías inmutables; resuelve el conflicto entre la regla de Bloch sobre extensibilidad de clases inmutables y la herencia múltiple de comportamientos.',
+      cons: 'Mantenibilidad, reusabilidad, robustez.',
+      anchor: 'Hashimoto et al. 2023' },
+    { n: 13, name: 'Type Class / Generalized Interface', origin: 'Nuevo (FP+OO)', group: 'nuevo', mech: ['M2'],
+      ref: 'Polimorfismo sin herencia, abierto a tipos nuevos sin tocar definiciones',
+      desc: 'Extiende interfaces con type classes al estilo Haskell para implementaciones retroactivas (JavaGI). Hace obsoletos Adapter, Factory y partes de Visitor.',
+      cons: 'Extensibilidad, modularidad, flexibilidad.',
+      anchor: 'Wehr &amp; Thiemann (JavaGI) · Odersky 2018' },
+    { n: 14, name: 'Extractor (Active Pattern)', origin: 'Nuevo (FP+OO)', group: 'nuevo', mech: ['M3'],
+      ref: 'Adaptador entre encapsulación OO y pattern matching FP',
+      desc: 'Método unapply (o active patterns en F#) que descompone objetos para pattern matching, separando la estructura concreta de la descomposición. Para APIs que exponen matching sobre tipos cuya representación interna debe ocultarse.',
+      cons: 'Extensibilidad, encapsulación, mantenibilidad.',
+      anchor: 'Emir et al. 2007 · Solodkyy 2012' },
+    { n: 15, name: 'Parser Combinators', origin: 'Nuevo (FP en host OO/multi)', group: 'nuevo', mech: ['M4'],
+      ref: 'Composición FP de parsers con tipos OO en lenguaje multiparadigma',
+      desc: 'Parsers como funciones de orden superior, con implicits y path-dependent types en Scala. Reemplaza generadores de parsers externos en muchos casos.',
+      cons: 'Extensibilidad, modularidad, expresividad.',
+      anchor: 'Willis &amp; Wu 2022' },
+    { n: 16, name: 'Tagless Final / Free Monad', origin: 'Nuevo (FP+OO)', group: 'nuevo', mech: ['M1'],
+      ref: 'Álgebra abstracta polimórfica para interpretación multi-target del mismo AST',
+      desc: 'Encoding de DSLs como interfaces parametrizadas o como datos algebraicos. Para DSLs embebidos donde se necesita variar la interpretación.',
+      cons: 'Extensibilidad, modularidad, separación de sintaxis y semántica.',
+      anchor: 'Oliveira et al. 2013 · Löh &amp; Hinze 2006' }
+  ];
+
+  var grid = document.getElementById('catGrid');
+  var count = document.getElementById('catCount');
+  var fMech = 'all';
+  var fOrig = 'all';
+
+  function originPill(group, origin) {
+    var cls = group === 'fp' ? 'pill-fp' : (group === 'gof' ? 'pill-oo' : (group === 'nuevo' ? 'pill-m' : 'pill-hib'));
+    return '<span class="pill ' + cls + '">' + origin + '</span>';
+  }
+
+  function render() {
+    var visible = PATTERNS.filter(function (p) {
+      var okM = fMech === 'all' || p.mech.indexOf(fMech) !== -1;
+      var okO = fOrig === 'all' || p.group === fOrig;
+      return okM && okO;
+    });
+    grid.innerHTML = visible.map(function (p) {
+      return '<article class="card pat-card">' +
+        '<div class="pat-top"><span class="pat-name">' + p.name + '</span><span class="pat-num">#' + p.n + '</span></div>' +
+        '<div class="pat-tags">' + originPill(p.group, p.origin) +
+          p.mech.map(function (m) { return '<span class="pill pill-neutral">' + m + '</span>'; }).join('') +
+        '</div>' +
+        '<p class="pat-ref">' + p.ref + '</p>' +
+        '<p class="pat-desc">' + p.desc + '</p>' +
+        '<p class="pat-cons"><b>Consecuencias:</b> ' + p.cons + '<br><b>Anclas:</b> ' + p.anchor + '</p>' +
+        '</article>';
+    }).join('');
+    count.textContent = 'Mostrando ' + visible.length + ' de ' + PATTERNS.length + ' patrones.';
+  }
+
+  document.querySelectorAll('[data-fmech]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      fMech = b.getAttribute('data-fmech');
+      document.querySelectorAll('[data-fmech]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render();
+    });
+  });
+  document.querySelectorAll('[data-forig]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      fOrig = b.getAttribute('data-forig');
+      document.querySelectorAll('[data-forig]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

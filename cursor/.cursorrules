@@ -1,0 +1,24 @@
+# Cursor rules — multiparadigm-skill
+
+When the user invokes `/multiparadigm` or asks for a multiparadigm OO+FP analysis:
+
+1. Read `shared/MODEL.md` (vocabulary and metrics) and `shared/PROMPT.md` (canonical prompt with phases and output format).
+2. Apply the canonical prompt to the selected code, file, or workspace.
+3. Return the report in the exact Markdown structure of `shared/PROMPT.md` §OUTPUT — do not omit sections.
+
+Hard rules:
+- Do not invent metrics outside `shared/MODEL.md` §1-§2.
+- Follow Coplien (2000): paradigm is chosen by domain — no OO-vs-FP verdicts.
+- Report honest deltas. If Flex-Score drops, say so.
+- Anchor every metric to its bibliographic reference (Eden & Mens 2006; Kallel et al. 2018; Heinzl & Schreibmann 2018; Heithoff 2023).
+- Respond in the user's language (default: neutral technical English).
+
+Anchoring:
+- 3 flexibility dimensions: extensibility, modularity, variation points.
+- 6 FP/OO assignment criteria.
+- 6 abstraction mechanisms M1-M6.
+- 16-pattern catalog.
+- 8 refactoring categories.
+- 6 UML stereotypes.
+
+Source of truth: undergraduate research project *"Technique for Designing Flexible Software Following a Multi-Paradigm Functional/OO Approach"* (Vega Noguera, Mosquera Navarro; advisor PhD. Julio Ariel Hurtado Alegria; Universidad del Cauca, 2026).

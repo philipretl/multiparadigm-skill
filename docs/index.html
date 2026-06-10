@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FP/OO Multiparadigm Design Technique — Universidad del Cauca</title>
+<meta name="description" content="Explicit criteria for deciding which paradigm —functional or object-oriented— takes on each responsibility in detailed design. Technique, 16-pattern catalog, lightweight UML profile, and the /multiparadigm agent.">
+<style>
+  :root {
+    --bg: #fafafa;
+    --bg-alt: #ffffff;
+    --bg-inset: #f1f0f5;
+    --text: #1d1d27;
+    --text-soft: #54545f;
+    --text-faint: #76767f;
+    --border: #e0e0e8;
+    --accent: #ff6600;
+    --accent-soft: #fff1e5;
+    --accent-strong: #cc5200;
+    --accent-contrast: #ffffff;
+    --ok: #0d7a4f;
+    --ok-soft: #e3f5ec;
+    --warn: #92520a;
+    --warn-soft: #fdf0dd;
+    --fp: #0e7490;
+    --fp-soft: #e0f4f9;
+    --oo: #b45309;
+    --oo-soft: #fdf2e0;
+    --hib: #cc5200;
+    --hib-soft: #fff1e5;
+    --code-bg: #f4f3f8;
+    --shadow: 0 1px 3px rgba(20,20,40,.08), 0 4px 14px rgba(20,20,40,.05);
+  }
+  [data-theme="dark"] {
+    --bg: #14141c;
+    --bg-alt: #1c1c27;
+    --bg-inset: #232330;
+    --text: #ececf2;
+    --text-soft: #b3b3c0;
+    --text-faint: #8e8e9c;
+    --border: #32323f;
+    --accent: #ff6600;
+    --accent-soft: #3d2410;
+    --accent-strong: #ff8533;
+    --accent-contrast: #ffffff;
+    --ok: #4ecf96;
+    --ok-soft: #143527;
+    --warn: #e3a95b;
+    --warn-soft: #3a2c14;
+    --fp: #53c0dd;
+    --fp-soft: #11313b;
+    --oo: #e0a35a;
+    --oo-soft: #392a14;
+    --hib: #ff8533;
+    --hib-soft: #3d2410;
+    --code-bg: #242432;
+    --shadow: 0 1px 3px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  code, .mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: .88em;
+    background: var(--code-bg);
+    padding: .1em .35em;
+    border-radius: 4px;
+  }
+  a { color: var(--accent); }
+  a:hover { color: var(--accent-strong); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg-alt) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 8px; height: 56px; max-width: 1060px; margin: 0 auto; padding: 0 16px; }
+  .nav-brand { font-weight: 700; font-size: .95rem; color: var(--text); text-decoration: none; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+  .nav-brand .dot { width: 10px; height: 10px; border-radius: 3px; background: var(--accent); display: inline-block; flex: none; }
+  .nav-links { display: flex; gap: 2px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a {
+    color: var(--text-soft); text-decoration: none; font-size: .85rem;
+    padding: 6px 10px; border-radius: 6px; white-space: nowrap;
+  }
+  .nav-links a:hover { background: var(--bg-inset); color: var(--text); }
+  .theme-btn {
+    flex: none; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text-soft);
+    width: 36px; height: 36px; border-radius: 8px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .theme-btn:hover { color: var(--text); border-color: var(--text-faint); }
+  .lang-switch {
+    flex: none; display: inline-flex; align-items: stretch; overflow: hidden;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--bg-alt);
+  }
+  .lang-switch a {
+    display: inline-flex; align-items: center; padding: 0 10px; height: 34px;
+    font-size: .78rem; font-weight: 700; letter-spacing: .03em;
+    color: var(--text-soft); text-decoration: none;
+  }
+  .lang-switch a:hover { color: var(--text); background: var(--bg-inset); }
+  .lang-switch a + a { border-left: 1px solid var(--border); }
+  .lang-switch a[aria-current="page"] { background: var(--accent); color: var(--accent-contrast); }
+  .lang-switch a[aria-current="page"]:hover { background: var(--accent-strong); color: var(--accent-contrast); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 64px 0 48px; text-align: center; }
+  .hero h1 { font-size: clamp(1.7rem, 4.5vw, 2.7rem); line-height: 1.15; letter-spacing: -.02em; max-width: 820px; margin: 0 auto; }
+  .hero h1 .grad { color: var(--accent); }
+  .hero .tagline { font-size: clamp(1rem, 2.4vw, 1.2rem); color: var(--text-soft); max-width: 680px; margin: 18px auto 0; }
+  .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+  .badge {
+    font-size: .8rem; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+  .hero-cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none; cursor: pointer;
+    font-size: .95rem; font-weight: 600; padding: 11px 20px; border-radius: 9px; border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--accent); color: var(--accent-contrast); }
+  .btn-primary:hover { background: var(--accent-strong); color: var(--accent-contrast); }
+  .btn-ghost { border-color: var(--border); color: var(--text); background: var(--bg-alt); }
+  .btn-ghost:hover { border-color: var(--text-faint); }
+
+  /* ---------- Sections ---------- */
+  section { padding: 56px 0; border-top: 1px solid var(--border); }
+  .sec-kicker { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); letter-spacing: -.01em; margin: 6px 0 10px; }
+  .sec-lead { color: var(--text-soft); max-width: 760px; margin-bottom: 28px; }
+  h3 { font-size: 1.1rem; margin-bottom: 8px; }
+
+  .pill { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; letter-spacing: .02em; }
+  .pill-fp  { background: var(--fp-soft); color: var(--fp); }
+  .pill-oo  { background: var(--oo-soft); color: var(--oo); }
+  .pill-hib { background: var(--hib-soft); color: var(--hib); }
+  .pill-m   { background: var(--accent-soft); color: var(--accent); }
+  .pill-neutral { background: var(--bg-inset); color: var(--text-soft); }
+
+  .card {
+    background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; box-shadow: var(--shadow);
+  }
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+  /* ---------- Wizard ---------- */
+  .wizard { max-width: 760px; margin: 0 auto; }
+  .wizard-box { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: 28px; }
+  .wizard-progress { display: flex; gap: 6px; margin-bottom: 22px; }
+  .wizard-progress span { height: 5px; flex: 1; border-radius: 99px; background: var(--bg-inset); }
+  .wizard-progress span.on { background: var(--accent); }
+  .wizard-q { font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; }
+  .wizard-hint { color: var(--text-soft); font-size: .9rem; margin-bottom: 18px; }
+  .wizard-opts { display: grid; gap: 10px; }
+  .opt-btn {
+    text-align: left; font: inherit; font-size: .95rem; cursor: pointer; color: var(--text);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px;
+    transition: border-color .12s, background .12s;
+  }
+  .opt-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .opt-btn b { display: block; }
+  .opt-btn small { color: var(--text-soft); }
+  .wizard-back {
+    margin-top: 18px; background: none; border: none; color: var(--text-soft); cursor: pointer;
+    font: inherit; font-size: .88rem; padding: 6px 8px; border-radius: 6px;
+  }
+  .wizard-back:hover { color: var(--text); background: var(--bg-inset); }
+
+  .result-head { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+  .result-paradigm { font-size: 1.3rem; font-weight: 800; letter-spacing: -.01em; }
+  .result-justif { color: var(--text-soft); margin: 6px 0 18px; }
+  .result-rows { display: grid; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .result-row { display: grid; grid-template-columns: 158px 1fr; border-top: 1px solid var(--border); }
+  .result-row:first-child { border-top: none; }
+  .result-row dt { background: var(--bg-inset); padding: 12px 14px; font-size: .8rem; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
+  .result-row dd { padding: 12px 14px; font-size: .93rem; }
+  .result-row dd .sub { color: var(--text-soft); font-size: .86rem; display: block; margin-top: 2px; }
+  @media (max-width: 560px) { .result-row { grid-template-columns: 1fr; } .result-row dt { padding-bottom: 4px; } .result-row dd { padding-top: 2px; } }
+  .result-actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .wizard-note { margin-top: 14px; font-size: .82rem; color: var(--text-faint); }
+
+  /* ---------- Mechanisms ---------- */
+  .m6-banner {
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    background: var(--accent-soft); border-radius: 14px; padding: 22px 24px; margin-bottom: 22px;
+  }
+  .m6-banner h3 { color: var(--accent); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .mech-card h3 { display: flex; align-items: center; gap: 10px; }
+  .mech-id {
+    flex: none; width: 38px; height: 38px; border-radius: 9px; background: var(--accent); color: var(--accent-contrast);
+    display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: .92rem;
+  }
+  .mech-block { margin-top: 10px; font-size: .9rem; }
+  .mech-block .lbl { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .lbl-lim { color: var(--warn); }
+  .lbl-prop { color: var(--ok); }
+  .mech-anchor { margin-top: 12px; font-size: .8rem; color: var(--text-faint); border-top: 1px dashed var(--border); padding-top: 9px; }
+
+  /* ---------- Catalog ---------- */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .filters .flabel { font-size: .8rem; font-weight: 700; color: var(--text-soft); margin-right: 4px; }
+  .fbtn {
+    font: inherit; font-size: .82rem; font-weight: 600; cursor: pointer;
+    border: 1px solid var(--border); background: var(--bg-alt); color: var(--text-soft);
+    padding: 5px 13px; border-radius: 999px;
+  }
+  .fbtn:hover { border-color: var(--accent); color: var(--accent); }
+  .fbtn[aria-pressed="true"] { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+  .cat-count { font-size: .85rem; color: var(--text-faint); margin: 6px 0 16px; }
+  .cat-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .pat-card { display: flex; flex-direction: column; gap: 8px; }
+  .pat-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+  .pat-name { font-weight: 700; font-size: 1rem; }
+  .pat-num { color: var(--text-faint); font-size: .8rem; font-weight: 600; }
+  .pat-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pat-ref { font-size: .9rem; font-weight: 600; color: var(--accent); }
+  .pat-desc { font-size: .88rem; color: var(--text-soft); flex: 1; }
+  .pat-cons { font-size: .8rem; color: var(--text-faint); border-top: 1px dashed var(--border); padding-top: 8px; }
+  .pat-cons b { color: var(--text-soft); }
+
+  /* ---------- Steps ---------- */
+  .steps { display: grid; gap: 14px; counter-reset: paso; }
+  .step { display: flex; gap: 16px; }
+  .step-num {
+    flex: none; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent); font-weight: 800;
+    display: flex; align-items: center; justify-content: center; border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .step-body h3 { margin-bottom: 4px; }
+  .step-body p { color: var(--text-soft); font-size: .93rem; }
+  .step-out { display: inline-block; margin-top: 6px; font-size: .8rem; background: var(--ok-soft); color: var(--ok); padding: 2px 10px; border-radius: 999px; font-weight: 600; }
+
+  /* ---------- UML ---------- */
+  .uml-table { width: 100%; border-collapse: collapse; font-size: .9rem; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .uml-wrap { overflow-x: auto; border-radius: 12px; box-shadow: var(--shadow); }
+  .uml-table th { text-align: left; background: var(--bg-inset); padding: 10px 14px; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-soft); }
+  .uml-table td { padding: 10px 14px; border-top: 1px solid var(--border); vertical-align: top; }
+  .uml-table td:first-child { white-space: nowrap; }
+  .uml-sub { font-size: .95rem; font-weight: 700; margin: 26px 0 10px; color: var(--text); }
+
+  /* ---------- Measure ---------- */
+  .dim-card h3 { color: var(--accent); }
+  .dim-card .how { margin-top: 8px; font-size: .85rem; color: var(--text-faint); }
+  .measure-idea { margin-top: 22px; }
+  .big-o { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin: 16px 0 6px; font-weight: 700; }
+  .big-o .o { padding: 10px 18px; border-radius: 10px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .big-o .bad { background: var(--warn-soft); color: var(--warn); }
+  .big-o .good { background: var(--ok-soft); color: var(--ok); }
+  .big-o .arrow { color: var(--text-faint); font-size: 1.3rem; }
+
+  /* ---------- Agent ---------- */
+  .phase-list { display: grid; gap: 10px; }
+  .phase { display: flex; gap: 12px; align-items: baseline; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; }
+  .phase .ph-n { font-weight: 800; color: var(--accent); flex: none; width: 56px; font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+  .phase .ph-t { font-size: .92rem; }
+  .phase .ph-t b { display: block; }
+  .phase .ph-t span { color: var(--text-soft); font-size: .87rem; }
+  .modes { margin-top: 26px; }
+  .mode-card h3 { display: flex; gap: 8px; align-items: center; }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1px solid var(--border); padding: 40px 0 56px; margin-top: 24px; text-align: center; color: var(--text-soft); font-size: .9rem; }
+  footer .authors { font-weight: 600; color: var(--text); }
+  footer .note { margin-top: 14px; font-size: .82rem; color: var(--text-faint); font-style: italic; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#top"><span class="dot" aria-hidden="true"></span>FP/OO Multiparadigm</a>
+    <div class="nav-links">
+      <a href="#wizard">Wizard</a>
+      <a href="#mechanisms">Mechanisms</a>
+      <a href="#catalog">Catalog</a>
+      <a href="#guide">Guide</a>
+      <a href="#uml">UML Profile</a>
+      <a href="#measure">Measurement</a>
+      <a href="#agent">Agent</a>
+    </div>
+    <button id="themeToggle" class="theme-btn" type="button" aria-label="Toggle light/dark theme">
+      <svg id="iconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <a href="index.html" hreflang="en" aria-current="page">EN</a>
+      <a href="es.html" hreflang="es" lang="es">ES</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero wrap" id="top">
+  <h1><span class="grad">FP/OO Multiparadigm</span> Design Technique</h1>
+  <p class="tagline">Explicit criteria for deciding which paradigm —functional or object-oriented— takes on each responsibility in detailed design. No paradigm wars: the domain decides.</p>
+  <div class="badges">
+    <span class="badge">Universidad del Cauca</span>
+    <span class="badge">IDIS Group</span>
+    <span class="badge">68 primary studies</span>
+  </div>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="#wizard">Try the decision wizard</a>
+    <a class="btn btn-ghost" href="#catalog">Browse the pattern catalog</a>
+  </div>
+</header>
+
+<!-- ============ WIZARD ============ -->
+<section id="wizard">
+  <div class="wrap">
+    <p class="sec-kicker">Interactive wizard</p>
+    <h2>Which paradigm should take on this responsibility?</h2>
+    <p class="sec-lead">Answer a few questions about the responsibility you are designing and get the technique's recommendation: paradigm, applied criterion, abstraction mechanism, catalog patterns, and UML stereotypes. Based on the OO/Functional decision scorecard (Table 4.1 of the technique).</p>
+    <div class="wizard">
+      <div class="wizard-box" id="wizardBox" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MECHANISMS ============ -->
+<section id="mechanisms">
+  <div class="wrap">
+    <p class="sec-kicker">5+1 system</p>
+    <h2>The abstraction mechanisms</h2>
+    <p class="sec-lead">From the intersection of the 68-primary-study corpus and Narbel's (2007) paradigm classification of patterns emerge five detailed-design mechanisms (M1–M5) and one governing architectural principle (M6). Each mechanism addresses a <strong>documented limitation</strong> of classic design patterns.</p>
+
+    <div class="m6-banner">
+      <h3><span class="pill pill-m">M6 · Governing principle</span> Paradigm composition by subdomain</h3>
+      <p style="margin-top:8px; font-size:.93rem;">Unlike M1–M5, it is not a detailed-design mechanism but the architectural principle that <strong>governs</strong> the application of the other five. It addresses the limitation of single-paradigm design methods: forcing the whole problem into a single conceptual language. Following Coplien (2000) and Vranic (2009), the first design decision assigns each subdomain of the problem —data, control, concurrency, presentation— its most natural paradigm; mechanisms M1–M5 operate afterwards, within and across the subdomains thus delimited.</p>
+      <p class="mech-anchor">Anchors: Coplien — Multi-Paradigm Design · Vranic — feature modeling · multiparadigm languages such as Oz.</p>
+    </div>
+
+    <div class="grid grid-2">
+      <article class="card mech-card">
+        <h3><span class="mech-id">M1</span> Object algebras / Tagless Final</h3>
+        <div class="mech-block"><span class="lbl lbl-lim">Limitation it addresses</span><p>Factory + Visitor against the Expression Problem: extending data and operations at the same time forces changes to existing code.</p></div>
+        <div class="mech-block"><span class="lbl lbl-prop">Proposal</span><p>Generalize them into a polymorphic algebraic signature that allows simultaneous extension along both dimensions without touching existing code.</p></div>
+        <p class="mech-anchor">Anchors: Oliveira &amp; Cook 2012 · Oliveira &amp; van der Storm 2015 · Oliveira et al. 2013.</p>
+      </article>
+      <article class="card mech-card">
+        <h3><span class="mech-id">M2</span> Type classes / Generalized Interfaces</h3>
+        <div class="mech-block"><span class="lbl lbl-lim">Limitation it addresses</span><p>Adapter and Strategy: giving existing types new behavior requires modifying or wrapping them, coupling the design to the hierarchy.</p></div>
+        <div class="mech-block"><span class="lbl lbl-prop">Proposal</span><p>Attach behavior to types without modifying their definitions: open, retroactive ad hoc polymorphism.</p></div>
+        <p class="mech-anchor">Anchors: Wehr &amp; Thiemann (JavaGI) · Odersky et al. (Simplicitly).</p>
+      </article>
+      <article class="card mech-card">
+        <h3><span class="mech-id">M3</span> Algebraic data types + Pattern Matching</h3>
+        <div class="mech-block"><span class="lbl lbl-lim">Limitation it addresses</span><p>Visitor: achieving case-based decomposition in OO imposes double dispatch and the accept/visit scaffolding that pollutes the base classes.</p></div>
+        <div class="mech-block"><span class="lbl lbl-prop">Proposal</span><p>Closed types with explicit syntactic decomposition, separating data from operations without giving up exhaustiveness checking.</p></div>
+        <p class="mech-anchor">Anchors: Emir et al. (Matching Objects with Patterns) · Löh &amp; Hinze (Open data types).</p>
+      </article>
+      <article class="card mech-card">
+        <h3><span class="mech-id">M4</span> HOF + Closures + FP Composition</h3>
+        <div class="mech-block"><span class="lbl lbl-lim">Limitation it addresses</span><p>Strategy, Command, and Iterator: representing pure behavior requires erecting class hierarchies whose indirection adds no value.</p></div>
+        <div class="mech-block"><span class="lbl lbl-prop">Proposal</span><p>First-class values: a lambda as a strategy, a closure as a command, a map/filter/reduce pipeline as an iterator.</p></div>
+        <p class="mech-anchor">Anchors: Bringert &amp; Ranta · Sousa &amp; Ferreira · Crichton (Typed Design Patterns).</p>
+      </article>
+      <article class="card mech-card">
+        <h3><span class="mech-id">M5</span> Reactive signals / Actors / Continuations</h3>
+        <div class="mech-block"><span class="lbl lbl-lim">Limitation it addresses</span><p>Observer: the subject–observer coupling and the manual inversion of control scatter the update flow and make it hard to reason about.</p></div>
+        <div class="mech-block"><span class="lbl lbl-prop">Proposal</span><p>Declarative change propagation (signals), or actors that unify thread- and event-based concurrency through explicit continuations.</p></div>
+        <p class="mech-anchor">Anchors: Salvaneschi et al. (RP comprehension) · Haller &amp; Odersky (Actors that Unify).</p>
+      </article>
+      <article class="card mech-card" style="background: var(--bg-inset); border-style: dashed;">
+        <h3 style="color: var(--text-soft);"><span class="mech-id" style="background: var(--text-faint);">→</span> How are they used?</h3>
+        <p style="font-size:.9rem; color: var(--text-soft); margin-top:8px;">M6 first decides the paradigm of each <em>subdomain</em>. Within each subdomain, the technique's criteria (Table 4.1) invoke M1–M5 for every detailed-design decision, and each pattern in the <a href="#catalog">catalog</a> states the mechanism that underpins it.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATALOG ============ -->
+<section id="catalog">
+  <div class="wrap">
+    <p class="sec-kicker">Catalog</p>
+    <h2>16 reformulated patterns</h2>
+    <p class="sec-lead">Hybrid reformulations of GoF patterns and extensibility mechanisms facing the Expression Problem, anchored to the quality &gt; 2.0 corpus. The catalog is the executing arm of the criteria: each pattern states the M1–M5 mechanism that underpins it. The reformulations belong to their authors; the technique's contribution is the systematic consolidation, operationalization, and update.</p>
+
+    <div class="filters" role="group" aria-label="Filter by mechanism">
+      <span class="flabel">Mechanism:</span>
+      <button class="fbtn" data-fmech="all" aria-pressed="true" type="button">All</button>
+      <button class="fbtn" data-fmech="M1" aria-pressed="false" type="button">M1</button>
+      <button class="fbtn" data-fmech="M2" aria-pressed="false" type="button">M2</button>
+      <button class="fbtn" data-fmech="M3" aria-pressed="false" type="button">M3</button>
+      <button class="fbtn" data-fmech="M4" aria-pressed="false" type="button">M4</button>
+      <button class="fbtn" data-fmech="M5" aria-pressed="false" type="button">M5</button>
+    </div>
+    <div class="filters" role="group" aria-label="Filter by origin">
+      <span class="flabel">Origin:</span>
+      <button class="fbtn" data-forig="all" aria-pressed="true" type="button">All</button>
+      <button class="fbtn" data-forig="gof" aria-pressed="false" type="button">GoF / OO</button>
+      <button class="fbtn" data-forig="fp" aria-pressed="false" type="button">FP</button>
+      <button class="fbtn" data-forig="hib" aria-pressed="false" type="button">Hybrid / Concurrent</button>
+      <button class="fbtn" data-forig="nuevo" aria-pressed="false" type="button">New</button>
+    </div>
+    <p class="cat-count" id="catCount" aria-live="polite"></p>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+</section>
+
+<!-- ============ GUIDE ============ -->
+<section id="guide">
+  <div class="wrap">
+    <p class="sec-kicker">Application guide</p>
+    <h2>Four steps, iterable throughout the design</h2>
+    <p class="sec-lead">The guide organizes the application of the technique into four sequential steps that can be iterated during detailed design.</p>
+    <div class="steps">
+      <div class="step card">
+        <div class="step-num" aria-hidden="true">1</div>
+        <div class="step-body">
+          <h3>Decomposition and classification</h3>
+          <p>Decompose the requirements into candidate components and apply the decision scorecard (Table 4.1) to each one. The <a href="#wizard">wizard</a> on this page automates this step.</p>
+          <span class="step-out">Output: components classified as mutable entity (OO) or value/function (FP)</span>
+        </div>
+      </div>
+      <div class="step card">
+        <div class="step-num" aria-hidden="true">2</div>
+        <div class="step-body">
+          <h3>Hybrid interface definition</h3>
+          <p>Design the interfaces of the main classes (OO) and, at the variation points that require flexibility, replace single-method interfaces with function-typed parameters. This substitution applies the Open/Closed principle through functional composition (Narbel 2007).</p>
+          <span class="step-out">Output: OO contracts with functional variation points</span>
+        </div>
+      </div>
+      <div class="step card">
+        <div class="step-num" aria-hidden="true">3</div>
+        <div class="step-body">
+          <h3>Visual modeling</h3>
+          <p>Build the class and sequence diagrams with the <a href="#uml">lightweight UML profile</a>, explicitly marking <code>&lt;&lt;pure&gt;&gt;</code> methods and <code>&lt;&lt;ValueObject&gt;&gt;</code> classes so the decisions remain visible from the design onward.</p>
+          <span class="step-out">Output: diagrams with explicit paradigm decisions</span>
+        </div>
+      </div>
+      <div class="step card">
+        <div class="step-num" aria-hidden="true">4</div>
+        <div class="step-body">
+          <h3>Refactoring toward immutability</h3>
+          <p>Review the preliminary design looking to reduce shared mutable state. If an OO class has a majority of <code>&lt;&lt;pure&gt;&gt;</code> methods, consider turning it into a functional module or a <code>&lt;&lt;ValueObject&gt;&gt;</code>; if a procedural sequence can be replaced by function composition, do it.</p>
+          <span class="step-out">Output: design with minimal, localized mutable state</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ UML ============ -->
+<section id="uml">
+  <div class="wrap">
+    <p class="sec-kicker">Notation</p>
+    <h2>Lightweight UML profile</h2>
+    <p class="sec-lead">Extends class and sequence diagrams through stereotypes (<code>&lt;&lt;...&gt;&gt;</code>) and tagged values (<code>{...}</code>) <strong>without modifying the UML metamodel</strong>: compatible with standard tools. It continues the line of Heinzl &amp; Schreibmann (2018) and addresses the lack of notation for functional design pointed out by Motara (2021).</p>
+
+    <p class="uml-sub">Class diagram — base extensions (4)</p>
+    <div class="uml-wrap">
+    <table class="uml-table">
+      <thead><tr><th scope="col">Notation</th><th scope="col">Concept</th><th scope="col">Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>{immutable}</code></td><td>Immutability</td><td>Tag on a class or attribute: the state does not change after instantiation.</td></tr>
+        <tr><td><code>&lt;&lt;pure&gt;&gt;</code></td><td>Pure function</td><td>On methods: referential transparency; no reads from or writes to global state.</td></tr>
+        <tr><td><code>&lt;&lt;ValueObject&gt;&gt;</code></td><td>Value object</td><td>On a class: equality by value, not by reference; must be immutable.</td></tr>
+        <tr><td><code>(T) -&gt; R</code></td><td>Higher-order function</td><td>Instead of primitive types, the arrow signature indicates that the parameter is behavior.</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p class="uml-sub">Class diagram — stereotypes derived from the corpus (6)</p>
+    <div class="uml-wrap">
+    <table class="uml-table">
+      <thead><tr><th scope="col">Stereotype</th><th scope="col">Applies to</th><th scope="col">Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;&lt;algebra&gt;&gt;</code></td><td>Interface</td><td>Generic factory that combines creation with interpretation; solves the Expression Problem without <code>accept</code> methods.</td></tr>
+        <tr><td><code>&lt;&lt;signal&gt;&gt;</code></td><td>Attribute</td><td>Variable whose value updates automatically when its declarative dependencies change.</td></tr>
+        <tr><td><code>&lt;&lt;var&gt;&gt;</code></td><td>Attribute</td><td>Observable mutable variable that serves as a source for signals; mutable state with clear boundaries.</td></tr>
+        <tr><td><code>&lt;&lt;typeclass&gt;&gt;</code></td><td>Interface</td><td>Interface implementable retroactively (Haskell type-class style), with dynamic dispatch without coupling the OO hierarchy.</td></tr>
+        <tr><td><code>&lt;&lt;extractor&gt;&gt;</code></td><td>Method</td><td>An <code>unapply</code> method that decomposes values into their components for pattern matching, separating structure from representation.</td></tr>
+        <tr><td><code>&lt;&lt;actor&gt;&gt;</code></td><td>Class</td><td>Component with a message queue, asynchronous messaging, and encapsulated state; unifies thread-based and event-based concurrency.</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <p class="uml-sub">Sequence diagram — markers (6)</p>
+    <div class="uml-wrap">
+    <table class="uml-table">
+      <thead><tr><th scope="col">Marker</th><th scope="col">Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;&lt;lambda&gt;&gt;</code></td><td>On the message arrow: the argument being passed is an executable function.</td></tr>
+        <tr><td><code>&lt;&lt;Lazy&gt;&gt;</code></td><td>Note adjacent to the message: the function passed will run later, not at call time.</td></tr>
+        <tr><td><code>&lt;&lt;react&gt;&gt;</code></td><td>On arrows that propagate events in signal graphs.</td></tr>
+        <tr><td><code>&lt;&lt;send&gt;&gt;</code> / <code>&lt;&lt;receive&gt;&gt;</code></td><td>Asynchronous send to an actor / processing of the message in its mailbox.</td></tr>
+        <tr><td><code>&lt;&lt;continuation&gt;&gt;</code></td><td>On arrows that capture control for later resumption (CPS, async/await, extensible state machines).</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MEASURE ============ -->
+<section id="measure">
+  <div class="wrap">
+    <p class="sec-kicker">Evaluation model</p>
+    <h2>How to measure design flexibility</h2>
+    <p class="sec-lead">Flexibility is not an absolute property of software: it is relative to a class of changes declared in advance (Eden &amp; Mens, 2006). The technique evaluates the resulting design along three operational dimensions.</p>
+
+    <div class="grid grid-3">
+      <article class="card dim-card">
+        <h3>Extensibility</h3>
+        <p style="font-size:.9rem;">Ability to add new types or new operations without altering what already exists.</p>
+        <p class="how">Evaluated with evolution steps that introduce a domain type or an operation over the existing types (modified vs. added vs. preserved LOC).</p>
+      </article>
+      <article class="card dim-card">
+        <h3>Modularity</h3>
+        <p style="font-size:.9rem;">Decomposition into cohesive, loosely coupled parts.</p>
+        <p class="how">Evaluated with steps that redefine an architectural boundary or redistribute responsibilities (Ca/Ce coupling, instability, cohesion).</p>
+      </article>
+      <article class="card dim-card">
+        <h3>Variation points</h3>
+        <p style="font-size:.9rem;">Ability to change behavior by parameter or by swapping implementations.</p>
+        <p class="how">Evaluated with steps that replace an algorithm or introduce a one-off criterion (explicit pluggable variation points, wiring cost).</p>
+      </article>
+    </div>
+
+    <div class="card measure-idea">
+      <h3>The core idea: declare the evolution steps <em>before</em> measuring</h3>
+      <p style="font-size:.93rem; color:var(--text-soft); margin-top:6px;">An «evolution step» formalizes an anticipated change: original problem, modified problem, previous implementation, and adjusted implementation. Measuring flexibility reduces to measuring the cost of transforming the first implementation into the second: how many modules change, weighted by a complexity metric (LOC, cyclomatic complexity, timed effort). Declaring the set of steps up front is essential: it prevents the later choice from biasing the result.</p>
+      <div class="big-o" aria-label="Asymptotic interpretation of the evolution cost">
+        <span class="o bad">Cost O(|N|) — hard</span>
+        <span class="arrow" aria-hidden="true">→</span>
+        <span class="o good">Cost O(1) — easy</span>
+      </div>
+      <p style="font-size:.88rem; color:var(--text-soft); text-align:center;">A step is <strong>easy</strong> if its cost does not grow with the size of the implementation (constant, O(1)) and <strong>hard</strong> if it grows linearly (O(|N|)) with respect to, for example, the number of domain types or operations. The technique pays off when it moves selected steps from O(|N|) to O(1) <em>without degrading the cost of the rest</em>.</p>
+      <p style="font-size:.82rem; color:var(--text-faint); margin-top:10px;">Standard anticipated changes in the case study: (1) a new operation over existing data, (2) a new datum/node over existing operations, (3) a new type variant.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AGENT ============ -->
+<section id="agent">
+  <div class="wrap">
+    <p class="sec-kicker">Tooling</p>
+    <h2>The <code>/multiparadigm</code> agent</h2>
+    <p class="sec-lead">The technique is operationalized as a portable command (Claude Code/Cowork, GitHub Copilot, Cursor, ChatGPT/Grok) that analyzes code through the multiparadigm lens and proposes refactorings justified with the criteria, mechanisms, and patterns on this page. It issues no «OO is better» or «FP is better» verdicts: it follows Coplien — the domain chooses the paradigm.</p>
+
+    <h3 style="margin-bottom:12px;">The 6 phases of the analysis</h3>
+    <div class="phase-list">
+      <div class="phase"><span class="ph-n">Phase 1</span><div class="ph-t"><b>Detection</b><span>Language, OO/FP signal balance, and the code's subdomain (CRUD, AST/interpreter, ETL pipeline, parser…).</span></div></div>
+      <div class="phase"><span class="ph-n">Phase 2</span><div class="ph-t"><b>Pattern report</b><span>Catalog patterns (or ad hoc equivalents) detected, their current form, and known tensions (e.g. Expression Problem).</span></div></div>
+      <div class="phase"><span class="ph-n">Phase 3</span><div class="ph-t"><b>Implicit business rules</b><span>Rules entangled with the mechanics of the code, with a suggested paradigm to encapsulate each one.</span></div></div>
+      <div class="phase"><span class="ph-n">Phase 4</span><div class="ph-t"><b>Applying the technique</b><span>For each finding: assignment criterion (1–6), mechanism (M1–M6), and refactoring category (1–8).</span></div></div>
+      <div class="phase"><span class="ph-n">Phase 5</span><div class="ph-t"><b>Refactoring proposal</b><span>Conceptual diff, «after» code with UML stereotypes as comments, and the anticipated changes the new design absorbs.</span></div></div>
+      <div class="phase"><span class="ph-n">Phase 6</span><div class="ph-t"><b>Flexibility delta</b><span>Before/after per dimension (extensibility, modularity, variation points) plus an aggregate Flex-Score. Honest deltas: if it does not improve, it says so.</span></div></div>
+    </div>
+
+    <div class="modes">
+      <h3 style="margin-bottom:12px;">Three decision modes (human-in-the-loop)</h3>
+      <div class="grid grid-3">
+        <article class="card mode-card">
+          <h3><span class="pill pill-fp">Autonomous</span></h3>
+          <p style="font-size:.9rem; color:var(--text-soft); margin-top:8px;">When a finding unambiguously matches a scorecard criterion —e.g. a pure transformation implemented with accidental mutable state— the agent applies the criterion and records the justification without asking.</p>
+        </article>
+        <article class="card mode-card">
+          <h3><span class="pill pill-oo">Guided</span></h3>
+          <p style="font-size:.9rem; color:var(--text-soft); margin-top:8px;">When the evidence is ambiguous or the change affects the module's public contracts, the agent presents the alternatives with their anchoring to the criteria and asks the developer, who decides. The interaction is recorded.</p>
+        </article>
+        <article class="card mode-card">
+          <h3><span class="pill pill-hib">Universal audit</span></h3>
+          <p style="font-size:.9rem; color:var(--text-soft); margin-top:8px;">Every modification —autonomous or guided— is delivered as a reviewable proposal (pull-request style) that developers approve, adjust, or reject. No change enters the design without human review.</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="hero-cta" style="margin-top:30px; justify-content:flex-start;">
+      <a class="btn btn-primary" href="https://github.com/philipretl/multiparadigm-skill" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <p class="authors">Andrés Felipe Vega Noguera · Yeison David Mosquera Navarro</p>
+    <p>Advisor: PhD. Julio Ariel Hurtado Alegría</p>
+    <p>Universidad del Cauca — Grupo IDIS · 2026</p>
+    <p class="note">Undergraduate research project; empirical evaluation in progress.</p>
+  </div>
+</footer>
+
+<script>
+/* =================== Light/dark theme =================== */
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('themeToggle');
+  var sun = document.getElementById('iconSun');
+  var moon = document.getElementById('iconMoon');
+  function systemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function apply(theme) {
+    root.setAttribute('data-theme', theme);
+    var dark = theme === 'dark';
+    sun.style.display = dark ? 'none' : '';
+    moon.style.display = dark ? '' : 'none';
+    btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('mp-theme'); } catch (e) {}
+  apply(saved || systemTheme());
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+    var s = null;
+    try { s = localStorage.getItem('mp-theme'); } catch (err) {}
+    if (!s) apply(e.matches ? 'dark' : 'light');
+  });
+  btn.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('mp-theme', next); } catch (e) {}
+    apply(next);
+  });
+})();
+
+/* =================== Decision wizard =================== */
+(function () {
+  var box = document.getElementById('wizardBox');
+
+  /* Questions. Each option points to another question (q:) or to a result (r:). */
+  var QUESTIONS = {
+    q1: {
+      depth: 1,
+      q: 'What is the primary nature of the responsibility you are about to design?',
+      hint: 'Think of a concrete component: a class, a module, a service, a function.',
+      opts: [
+        { t: 'Represent a domain entity', s: 'It has its own identity and life cycle: it is born, changes, dies (user, session, order).', go: 'q_entidad' },
+        { t: 'Transform data', s: 'Takes an input and produces an output (calculations, validations, ETL, serialization).', go: 'q_transform' },
+        { t: 'Parameterize or inject behavior', s: 'An interchangeable algorithm or criterion: sorting, filtering, pricing policy.', go: 'q_comportamiento' },
+        { t: 'Model a family of types with operations', s: 'Data variants + operations over them: AST, document types, domain events.', go: 'q_crecimiento' },
+        { t: 'Coordinate concurrency, events, or reactivity', s: 'Several things happen at once, or values must propagate when they change.', go: 'q_concurrencia' }
+      ]
+    },
+    q_entidad: {
+      depth: 2,
+      q: 'Must that entity process messages concurrently?',
+      hint: 'For example, several threads or clients interacting with it at the same time.',
+      opts: [
+        { t: 'No: its state changes sequentially and in a controlled way', go: 'r_oo_entidad' },
+        { t: 'Yes: it receives concurrent messages and must protect its state', go: 'r_actor' }
+      ]
+    },
+    q_transform: {
+      depth: 2,
+      q: 'Does the transformation need to keep a history of internal states or a state machine?',
+      hint: 'Criterion 1.2 of the technique: the boundary is whether the output depends only on the input.',
+      opts: [
+        { t: 'No: it is a pipeline-style flow', s: 'The output of one operation is the input of the next, without modifying the original data.', go: 'r_fp_pipeline' },
+        { t: 'Yes: it requires a history or a state machine', s: 'Complex internal states that evolve between invocations.', go: 'r_oo_estado' }
+      ]
+    },
+    q_comportamiento: {
+      depth: 2,
+      q: 'How complex is the behavior to inject?',
+      hint: 'Criterion 2.1: the boundary lies between a one-off operation and a stateful collaborator.',
+      opts: [
+        { t: 'Simple: a single, one-off operation', s: 'A filtering criterion, a tax-calculation formula.', go: 'r_fp_lambda' },
+        { t: 'Complex: it keeps its own state or has several related methods', s: 'For example, a database driver.', go: 'q_retro' }
+      ]
+    },
+    q_retro: {
+      depth: 3,
+      q: 'Do you need already-existing types — which you cannot modify — to adopt that behavior?',
+      hint: 'Retroactive implementation: adding the interface to third-party types or types from other modules.',
+      opts: [
+        { t: 'No: I control the implementation hierarchy', go: 'r_oo_strategy' },
+        { t: 'Yes: I need retroactive implementation over foreign types', go: 'r_typeclass' }
+      ]
+    },
+    q_crecimiento: {
+      depth: 2,
+      q: 'What do you expect to grow most often?',
+      hint: 'This is the practical formulation of the Expression Problem (criterion 2.2).',
+      opts: [
+        { t: 'New data types or variants', s: 'The operations remain stable.', go: 'r_oo_tipos' },
+        { t: 'New operations over existing types', s: 'The types remain stable.', go: 'r_fp_ops' },
+        { t: 'Both dimensions at once', s: 'New types AND new operations simultaneously.', go: 'r_hibrido_oa' }
+      ]
+    },
+    q_concurrencia: {
+      depth: 2,
+      q: 'What form does that coordination take?',
+      hint: 'Criterion 4.1 and the concurrency/reactivity criterion: separate the «what» (FP) from the «who» (OO actor).',
+      opts: [
+        { t: 'Change propagation', s: 'Derived values that must update when their sources change (UI, reactive data).', go: 'r_signal' },
+        { t: 'Concurrent units that communicate through messages', s: 'Workers, sessions, devices: each with its own state.', go: 'r_actor' },
+        { t: 'Parallel data processing', s: 'High concurrency over collections, with no need for shared state.', go: 'r_fp_inmutable' }
+      ]
+    }
+  };
+
+  /* Results. Faithful to Table 4.1 (scorecard) + criteria §4.2 + catalog §4.5 + profile §4.3. */
+  var RESULTS = {
+    r_oo_entidad: {
+      paradigm: 'Object-oriented',
+      pclass: 'oo',
+      detail: 'Classes with encapsulation',
+      justif: 'An entity with identity and mutable state: encapsulation protects the integrity of the state (scorecard row 1). Immutability avoids side effects in the values the entity exposes.',
+      criterio: 'Criterion 1.1 — Identity vs. Value',
+      criterioSub: 'OO when the component requires unique identity and a life cycle; FP for the identity-less values around it (amounts, coordinates, events).',
+      mecanismo: 'Governed by M6 (the entity subdomain calls for OO); no specific M1–M5 mechanism.',
+      patrones: 'Extensible State Machine (#6) if the entity wraps a state machine · Immutable Factory Method (#12) for associated immutable value hierarchies.',
+      uml: '&lt;&lt;var&gt;&gt; on the mutable attributes · {immutable} and &lt;&lt;ValueObject&gt;&gt; on the values the entity exposes.'
+    },
+    r_actor: {
+      paradigm: 'Hybrid (actor)',
+      pclass: 'hib',
+      detail: 'OO for the «who» (identity, mailbox), FP for the «what» (pure message processing)',
+      justif: 'Actors and reactivity cut across both paradigms: the actor encapsulates identity and message-controlled mutable state, and unifies thread-based and event-based concurrency through continuations.',
+      criterio: 'Criterion 4.1 — Parallel processing / concurrency and reactivity',
+      criterioSub: 'Prefer abstractions that separate the «what» (FP) from the «who» (OO actor); explicit lock-based synchronization is error-prone.',
+      mecanismo: 'M5 — Reactive signals / Actors / Continuations',
+      patrones: 'Actor Unification (#10): actors that unify threads and events via continuations as closures.',
+      uml: '&lt;&lt;actor&gt;&gt; on the class · &lt;&lt;send&gt;&gt; / &lt;&lt;receive&gt;&gt; in sequence diagrams · &lt;&lt;continuation&gt;&gt; wherever control is captured.'
+    },
+    r_fp_pipeline: {
+      paradigm: 'Functional',
+      pclass: 'fp',
+      detail: 'Transformation pipelines',
+      justif: 'A data-transformation flow (ETL): modularity through function composition (scorecard row 2). The output of one operation is the input of the next without modifying the original data (referential transparency).',
+      criterio: 'Criterion 1.2 — Data transformation',
+      criterioSub: 'FP when a pipeline-style flow is required; OO only if the manipulation demands a history of complex internal states.',
+      mecanismo: 'M4 — HOF + Closures + FP Composition',
+      patrones: 'Reformulated Iterator (#3): stream + map/filter/reduce · Reformulated Decorator (#4): function composition for pure wrappers.',
+      uml: '&lt;&lt;pure&gt;&gt; on the methods · {immutable} on the data · (T) -&gt; R signature on the behavior parameters.'
+    },
+    r_oo_estado: {
+      paradigm: 'Object-oriented',
+      pclass: 'oo',
+      detail: 'Object with internal state / state machine',
+      justif: 'When data manipulation requires keeping a history of complex internal states or state machines, criterion 1.2 assigns the responsibility to OO: encapsulation fences in the mutation.',
+      criterio: 'Criterion 1.2 — Data transformation (stateful case)',
+      criterioSub: 'The boundary is referential transparency: if the output depends on the history, there is identity and state to protect.',
+      mecanismo: 'M5 when the state machine must be extended modularly (delimited continuations).',
+      patrones: 'Extensible State Machine (#6): OO inheritance + FP delimited continuations for modular extension of states and events.',
+      uml: '&lt;&lt;var&gt;&gt; on the mutable state · &lt;&lt;continuation&gt;&gt; in sequence diagrams if control is captured.'
+    },
+    r_fp_lambda: {
+      paradigm: 'Functional',
+      pclass: 'fp',
+      detail: 'Lambdas / higher-order functions',
+      justif: 'Simple parameterizable behavior: lightweight configurability without class overhead (scorecard row 3). Lambdas inject behavior without the verbosity of anonymous classes.',
+      criterio: 'Criterion 2.1 — Strategies and algorithms (variation points)',
+      criterioSub: 'FP (lambdas) when the behavior is a single, one-off operation: a filtering criterion, a calculation formula.',
+      mecanismo: 'M4 — HOF + Closures + FP Composition',
+      patrones: 'Reformulated Strategy (#1): a lambda as an injectable strategy; replaces the Strategy/ConcreteStrategy hierarchy with a functional parameter.',
+      uml: '(T) -&gt; R signature on the parameter · &lt;&lt;lambda&gt;&gt; on the message in sequence diagrams · &lt;&lt;pure&gt;&gt; if it touches no global state.'
+    },
+    r_oo_strategy: {
+      paradigm: 'Object-oriented',
+      pclass: 'oo',
+      detail: 'Interfaces / classic Strategy pattern',
+      justif: 'Complex parameterizable behavior: polymorphism with state and interchangeable implementations (scorecard row 4). The OO interface accommodates multiple related methods and its own state.',
+      criterio: 'Criterion 2.1 — Strategies and algorithms (variation points)',
+      criterioSub: 'OO when the strategy is complex, keeps its own state, or has multiple related methods (e.g., a database driver).',
+      mecanismo: 'No M1–M5 mechanism: the functional variant of Strategy (M4) applies only to the simple case.',
+      patrones: 'Strategy (#1) in its OO form. Also consider step 2 of the guide: at the simple variation points inside the interface, use function-typed parameters.',
+      uml: 'Standard UML interface · (T) -&gt; R signature on the methods that accept one-off behavior.'
+    },
+    r_typeclass: {
+      paradigm: 'Hybrid (FP+OO)',
+      pclass: 'hib',
+      detail: 'Type classes / generalized interfaces',
+      justif: 'Give existing types new behavior without modifying or wrapping them: open, retroactive ad hoc polymorphism that does not couple the design to the hierarchy (a documented limitation of Adapter and Strategy).',
+      criterio: 'Criterion 2.1 / 2.2 — complex behavior with retroactive extension',
+      criterioSub: 'When neither inheritance nor wrapping is viable because the types cannot be touched, type classes are the indicated mechanism.',
+      mecanismo: 'M2 — Type classes / Generalized Interfaces',
+      patrones: 'Type Class / Generalized Interface (#13) · Datatype-Generic (#7) for abstracting over the shape of the data · Component Prototyping (#9) for type-level composition.',
+      uml: '&lt;&lt;typeclass&gt;&gt; on the retroactively implementable interface.'
+    },
+    r_oo_tipos: {
+      paradigm: 'Object-oriented',
+      pclass: 'oo',
+      detail: 'Open subtype hierarchies',
+      justif: 'Frequent new data types with stable operations: extensibility via subtype polymorphism (scorecard row 5). Each new variant is a new class; nothing existing is modified (Open/Closed via inheritance).',
+      criterio: 'Criterion 2.2 — Functionality extension (Expression Problem, data dimension)',
+      criterioSub: 'OO (inheritance, polymorphism) when the system will grow by adding new types or variants while the operations remain stable.',
+      mecanismo: 'Tagged M1/M3 in the technique: choosing this dimension is the OO half of the Expression Problem.',
+      patrones: 'Immutable Factory Method (#12) if the hierarchy exposes reusable immutable values.',
+      uml: 'Standard UML hierarchy · {immutable} and &lt;&lt;ValueObject&gt;&gt; where the variants are values.'
+    },
+    r_fp_ops: {
+      paradigm: 'Functional',
+      pclass: 'fp',
+      detail: 'Sealed ADT + pattern matching, HOF',
+      justif: 'Frequent new operations over stable types: extensibility via new functions over closed types (scorecard row 6). Each new operation is an external function; the data definitions are untouched.',
+      criterio: 'Criterion 2.2 — Functionality extension (Expression Problem, operations dimension)',
+      criterioSub: 'FP (composition) when the system will grow by adding new operations over existing data types.',
+      mecanismo: 'M3 — Algebraic data types + Pattern Matching',
+      patrones: 'Reformulated Visitor (#2): pattern matching over an ADT + external function · Extractor (#14) if the values come from encapsulated objects you must decompose.',
+      uml: '&lt;&lt;extractor&gt;&gt; on the unapply methods · &lt;&lt;pure&gt;&gt; on the operations · {immutable} on the ADT.'
+    },
+    r_hibrido_oa: {
+      paradigm: 'Hybrid',
+      pclass: 'hib',
+      detail: 'Object algebra / tagless final',
+      justif: 'New types and new operations at the same time: two-dimensional extensibility, solves the Expression Problem (hybrid scorecard row 8). A polymorphic algebraic signature allows extending both dimensions without touching existing code.',
+      criterio: 'Criterion 2.2 / Criterion 6 — Simultaneous extensibility boundary (data × operations)',
+      criterioSub: 'When the anticipated change opens both dimensions, object algebras or tagless final encodings offer the canonical closure. If it opens only one dimension, criteria 1–5 suffice.',
+      mecanismo: 'M1 — Object algebras / Tagless Final',
+      patrones: 'Object Algebra (#11): generic factory + visitor without accept methods · Tagless Final / Free Monad (#16) for multi-target interpretation of the same AST · Datatype-Generic (#7) as an alternative with virtual classes.',
+      uml: '&lt;&lt;algebra&gt;&gt; on the interface that combines creation with interpretation.'
+    },
+    r_fp_inmutable: {
+      paradigm: 'Functional',
+      pclass: 'fp',
+      detail: 'Immutability + pure functions',
+      justif: 'High concurrency: fewer side effects and locks (scorecard concurrency row). With no shared mutable state, race conditions disappear and safe parallelism becomes easier.',
+      criterio: 'Criterion 4.1 — Parallel processing',
+      criterioSub: 'FP in high-concurrency scenarios where immutability and pure functions can be exploited; explicit OO synchronization (locks, semaphores) is error-prone.',
+      mecanismo: 'M5 — Reactive signals / Actors / Continuations (concurrency side)',
+      patrones: 'Reformulated Iterator (#3): map/filter/reduce pipelines allow implicit parallelization because they hold no mutable iteration state.',
+      uml: '{immutable} on the shared data · &lt;&lt;pure&gt;&gt; on the operations.'
+    },
+    r_signal: {
+      paradigm: 'Hybrid (reactive)',
+      pclass: 'hib',
+      detail: 'Declarative signals over bounded mutable sources',
+      justif: 'Declarative change propagation: derived values update automatically when their dependencies change, without the subject–observer coupling or the manual inversion of control of the classic Observer. Empirical evidence of better comprehensibility and lower coupling.',
+      criterio: 'Concurrency and reactivity criterion (extended 4.1)',
+      criterioSub: 'Reactivity cuts across both paradigms: observable mutable sources (bounded OO) + declarative derivations (FP).',
+      mecanismo: 'M5 — Reactive signals / Actors / Continuations',
+      patrones: 'Reformulated Observer (#5): reactive streams / declarative signals.',
+      uml: '&lt;&lt;signal&gt;&gt; on the derived values · &lt;&lt;var&gt;&gt; on the mutable sources · &lt;&lt;react&gt;&gt; in sequence diagrams.'
+    }
+  };
+
+  var MAX_DEPTH = 3;
+  var history = [];
+
+  function esc(s) { return s; } /* controlled content, defined above */
+
+  function renderQuestion(id) {
+    var q = QUESTIONS[id];
+    var html = '<div class="wizard-progress" aria-hidden="true">';
+    for (var i = 1; i <= MAX_DEPTH; i++) html += '<span class="' + (i <= q.depth ? 'on' : '') + '"></span>';
+    html += '</div>';
+    html += '<p class="wizard-q">' + q.q + '</p>';
+    if (q.hint) html += '<p class="wizard-hint">' + q.hint + '</p>';
+    html += '<div class="wizard-opts" role="group" aria-label="Options">';
+    q.opts.forEach(function (o, idx) {
+      html += '<button class="opt-btn" type="button" data-go="' + o.go + '">' +
+              '<b>' + esc(o.t) + '</b>' + (o.s ? '<small>' + esc(o.s) + '</small>' : '') + '</button>';
+    });
+    html += '</div>';
+    if (history.length > 0) html += '<button class="wizard-back" type="button" data-back="1">&larr; Back to the previous question</button>';
+    box.innerHTML = html;
+    bind(id);
+  }
+
+  function pillFor(pclass) {
+    if (pclass === 'fp') return '<span class="pill pill-fp">Functional</span>';
+    if (pclass === 'oo') return '<span class="pill pill-oo">Object-oriented</span>';
+    return '<span class="pill pill-hib">Hybrid</span>';
+  }
+
+  function renderResult(id) {
+    var r = RESULTS[id];
+    var html = '<div class="result-head">' + pillFor(r.pclass) + '</div>' +
+      '<p class="result-paradigm">' + r.paradigm + ' — ' + r.detail + '</p>' +
+      '<p class="result-justif">' + r.justif + '</p>' +
+      '<dl class="result-rows">' +
+      '<div class="result-row"><dt>Criterion</dt><dd>' + r.criterio + '<span class="sub">' + r.criterioSub + '</span></dd></div>' +
+      '<div class="result-row"><dt>Mechanism</dt><dd>' + r.mecanismo + '</dd></div>' +
+      '<div class="result-row"><dt>Suggested patterns</dt><dd>' + r.patrones + '</dd></div>' +
+      '<div class="result-row"><dt>UML stereotypes</dt><dd><code style="white-space:normal;">' + r.uml + '</code></dd></div>' +
+      '</dl>' +
+      '<div class="result-actions">' +
+      '<button class="btn btn-primary" type="button" data-restart="1">Analyze another responsibility</button>' +
+      '<a class="btn btn-ghost" href="#catalog">See the patterns in the catalog</a>' +
+      '</div>' +
+      '<p class="wizard-note">Recommendation derived from the OO/Functional decision scorecard of the technique (Table 4.1) and its per-dimension criteria. Remember the governing principle M6: the first decision is made per subdomain; these criteria operate within it.</p>';
+    box.innerHTML = html;
+    bind(null);
+  }
+
+  function bind(currentId) {
+    box.querySelectorAll('[data-go]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var go = b.getAttribute('data-go');
+        history.push(currentId);
+        if (go.indexOf('r_') === 0) renderResult(go); else renderQuestion(go);
+        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+    var back = box.querySelector('[data-back]');
+    if (back) back.addEventListener('click', function () {
+      var prev = history.pop();
+      renderQuestion(prev || 'q1');
+    });
+    var restart = box.querySelector('[data-restart]');
+    if (restart) restart.addEventListener('click', function () {
+      history = [];
+      renderQuestion('q1');
+    });
+  }
+
+  renderQuestion('q1');
+})();
+
+/* =================== Filterable catalog =================== */
+(function () {
+  /* Data faithful to Table 4.3 and to the catalog descriptions (§4.5). */
+  var PATTERNS = [
+    { n: 1, name: 'Strategy', origin: 'GoF (OO)', group: 'gof', mech: ['M4'],
+      ref: 'Lambda as an injectable strategy',
+      desc: 'Replaces the classic Strategy/ConcreteStrategy hierarchy with a functional parameter. Applies when the variability is pure behavior and the OO hierarchy adds indirection without value.',
+      cons: 'Extensibility and configurability without new classes.',
+      anchor: 'Narbel 2007 · Crichton 2023' },
+    { n: 2, name: 'Visitor', origin: 'GoF (OO)', group: 'gof', mech: ['M3', 'M1'],
+      ref: 'Pattern matching + external function; alternative: object algebra',
+      desc: 'Replaces the double dispatch of the Visitor with extractors or case classes, or with object algebras to solve data and operation extension simultaneously.',
+      cons: 'Two-dimensional extensibility, improved modularity.',
+      anchor: 'Emir et al. · Oliveira &amp; Cook 2012 · EVF (Zhang 2017)' },
+    { n: 3, name: 'Iterator', origin: 'GoF (OO)', group: 'gof', mech: ['M4'],
+      ref: 'Stream + map/filter/reduce; datatype-generic traversal',
+      desc: 'Replaces the external iterators of the GoF pattern with higher-order pipelines.',
+      cons: 'Compositionality, no mutable iteration state, implicit parallelization.',
+      anchor: 'Bringert &amp; Ranta 2006 · Gibbons 2007' },
+    { n: 4, name: 'Decorator', origin: 'GoF (OO)', group: 'gof', mech: ['M4'],
+      ref: 'Function composition / wrapping with HOF',
+      desc: 'Replaces OO decorators with function composition when the decorators are pure and need no state between calls.',
+      cons: 'Simplicity and reusability.',
+      anchor: 'Bringert &amp; Ranta 2006 · Sousa &amp; Ferreira 2012' },
+    { n: 5, name: 'Observer', origin: 'GoF (OO)', group: 'gof', mech: ['M5'],
+      ref: 'Reactive streams / declarative signals',
+      desc: 'Replaces Observer/Subject with reactive signals; there is empirical evidence of better comprehensibility and lower coupling.',
+      cons: 'Improved maintainability, modularity.',
+      anchor: 'Salvaneschi et al. 2017' },
+    { n: 6, name: 'Extensible State Machine', origin: 'OO', group: 'gof', mech: ['M5'],
+      ref: 'Extensible state machine with generic types and functional dispatch',
+      desc: 'Combines OO inheritance with FP delimited continuations to allow modular extension of states and events. For complex state machines that require extension by subclassing.',
+      cons: 'Extensibility, maintainability, modularity.',
+      anchor: 'Chin &amp; Millstein 2008 · JavaGI' },
+    { n: 7, name: 'Datatype-Generic', origin: 'FP', group: 'fp', mech: ['M2'],
+      ref: 'Datatype-generic OO with type classes / generic interfaces',
+      desc: 'Extensible encoding via virtual classes in Scala: articulates traits and type members with parametric polymorphism to solve the Expression Problem in both dimensions.',
+      cons: 'Extensibility, modularity, reusability.',
+      anchor: 'Moors et al. 2006 · Oliveira 2015' },
+    { n: 8, name: 'Almost Compositional', origin: 'FP', group: 'fp', mech: ['M4'],
+      ref: 'Functional pattern applied in OO with monads / applicatives',
+      desc: 'Saves boilerplate in typed transformations that leave most constructors untouched; typical of interpreters and compilers.',
+      cons: 'Maintainability and reusability.',
+      anchor: 'Bringert &amp; Ranta 2006' },
+    { n: 9, name: 'Component Prototyping', origin: 'Hybrid', group: 'hib', mech: ['M2'],
+      ref: 'Type-level approach with type classes and functional dependencies',
+      desc: 'Type-level composition of components through multi-parameter type classes and functional dependencies.',
+      cons: 'Rapid prototyping with type safety when composing components.',
+      anchor: 'Barbosa et al. 2007' },
+    { n: 10, name: 'Actor Unification', origin: 'Concurrent', group: 'hib', mech: ['M5'],
+      ref: 'Actors that unify threads and events via continuations',
+      desc: 'Actors that unify thread-based and event-based concurrency through continuations as closures.',
+      cons: 'Modularity, extensibility of concurrency models, tunable performance.',
+      anchor: 'Haller &amp; Odersky 2007' },
+    { n: 11, name: 'Object Algebra', origin: 'New (FP+OO)', group: 'nuevo', mech: ['M1'],
+      ref: 'Generalization of Factory + Visitor that solves the Expression Problem',
+      desc: 'A generic factory plus a visitor without accept methods, parameterized over an algebraic signature. Allows two-dimensional extension: new types and new operations without touching existing code.',
+      cons: 'Maximum extensibility, modularity, and reusability.',
+      anchor: 'Oliveira &amp; Cook 2012 · Oliveira et al. 2013/2015' },
+    { n: 12, name: 'Immutable Factory Method', origin: 'New (OO with FP values)', group: 'nuevo', mech: ['M2'],
+      ref: 'Generics + default methods + type-specific factory over immutable types',
+      desc: 'Combines the classic Factory Method with Java 8 generics and interfaces to reuse methods across immutable hierarchies; resolves the conflict between the Bloch rule on extending immutable classes and multiple inheritance of behavior.',
+      cons: 'Maintainability, reusability, robustness.',
+      anchor: 'Hashimoto et al. 2023' },
+    { n: 13, name: 'Type Class / Generalized Interface', origin: 'New (FP+OO)', group: 'nuevo', mech: ['M2'],
+      ref: 'Polymorphism without inheritance, open to new types without touching definitions',
+      desc: 'Extends interfaces with Haskell-style type classes for retroactive implementations (JavaGI). Makes Adapter, Factory, and parts of Visitor obsolete.',
+      cons: 'Extensibility, modularity, flexibility.',
+      anchor: 'Wehr &amp; Thiemann (JavaGI) · Odersky 2018' },
+    { n: 14, name: 'Extractor (Active Pattern)', origin: 'New (FP+OO)', group: 'nuevo', mech: ['M3'],
+      ref: 'Adapter between OO encapsulation and FP pattern matching',
+      desc: 'An unapply method (or active patterns in F#) that decomposes objects for pattern matching, separating the concrete structure from the decomposition. For APIs that expose matching over types whose internal representation must stay hidden.',
+      cons: 'Extensibility, encapsulation, maintainability.',
+      anchor: 'Emir et al. 2007 · Solodkyy 2012' },
+    { n: 15, name: 'Parser Combinators', origin: 'New (FP in an OO/multi host)', group: 'nuevo', mech: ['M4'],
+      ref: 'FP composition of parsers with OO types in a multiparadigm language',
+      desc: 'Parsers as higher-order functions, with implicits and path-dependent types in Scala. Replaces external parser generators in many cases.',
+      cons: 'Extensibility, modularity, expressiveness.',
+      anchor: 'Willis &amp; Wu 2022' },
+    { n: 16, name: 'Tagless Final / Free Monad', origin: 'New (FP+OO)', group: 'nuevo', mech: ['M1'],
+      ref: 'Polymorphic abstract algebra for multi-target interpretation of the same AST',
+      desc: 'Encodes DSLs as parameterized interfaces or as algebraic data. For embedded DSLs where the interpretation must vary.',
+      cons: 'Extensibility, modularity, separation of syntax and semantics.',
+      anchor: 'Oliveira et al. 2013 · Löh &amp; Hinze 2006' }
+  ];
+
+  var grid = document.getElementById('catGrid');
+  var count = document.getElementById('catCount');
+  var fMech = 'all';
+  var fOrig = 'all';
+
+  function originPill(group, origin) {
+    var cls = group === 'fp' ? 'pill-fp' : (group === 'gof' ? 'pill-oo' : (group === 'nuevo' ? 'pill-m' : 'pill-hib'));
+    return '<span class="pill ' + cls + '">' + origin + '</span>';
+  }
+
+  function render() {
+    var visible = PATTERNS.filter(function (p) {
+      var okM = fMech === 'all' || p.mech.indexOf(fMech) !== -1;
+      var okO = fOrig === 'all' || p.group === fOrig;
+      return okM && okO;
+    });
+    grid.innerHTML = visible.map(function (p) {
+      return '<article class="card pat-card">' +
+        '<div class="pat-top"><span class="pat-name">' + p.name + '</span><span class="pat-num">#' + p.n + '</span></div>' +
+        '<div class="pat-tags">' + originPill(p.group, p.origin) +
+          p.mech.map(function (m) { return '<span class="pill pill-neutral">' + m + '</span>'; }).join('') +
+        '</div>' +
+        '<p class="pat-ref">' + p.ref + '</p>' +
+        '<p class="pat-desc">' + p.desc + '</p>' +
+        '<p class="pat-cons"><b>Consequences:</b> ' + p.cons + '<br><b>Anchors:</b> ' + p.anchor + '</p>' +
+        '</article>';
+    }).join('');
+    count.textContent = 'Showing ' + visible.length + ' of ' + PATTERNS.length + ' patterns.';
+  }
+
+  document.querySelectorAll('[data-fmech]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      fMech = b.getAttribute('data-fmech');
+      document.querySelectorAll('[data-fmech]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render();
+    });
+  });
+  document.querySelectorAll('[data-forig]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      fOrig = b.getAttribute('data-forig');
+      document.querySelectorAll('[data-forig]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

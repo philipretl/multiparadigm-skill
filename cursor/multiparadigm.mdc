@@ -1,0 +1,26 @@
+---
+description: /multiparadigm command — multiparadigm OO+FP analysis with flexibility delta
+globs: ["**/*.java", "**/*.kt", "**/*.scala", "**/*.py", "**/*.js", "**/*.ts", "**/*.tsx", "**/*.fs", "**/*.cs"]
+alwaysApply: false
+---
+
+# /multiparadigm
+
+Analyze the selected code or open file under the OO+FP multiparadigm approach of Vega-Mosquera-Hurtado (Universidad del Cauca, 2026).
+
+First read `shared/MODEL.md` and `shared/PROMPT.md` of the `multiparadigm-skill` repo. Apply the 6 phases of the canonical prompt:
+
+1. Detection (language, OO/FP balance, subdomain).
+2. Detected patterns (16-pattern catalog).
+3. Implicit business rules.
+4. Technique application (criterion + mechanism + category).
+5. Refactoring proposal (with after code and absorbed anticipated changes).
+6. Flexibility delta (extensibility, modularity, variation points + Flex-Score).
+
+Return the report in the Markdown structure of `shared/PROMPT.md` §OUTPUT, without omitting sections.
+
+Hard rules:
+- Do not invent metrics.
+- Do not deliver OO-vs-FP verdicts (Coplien 2000).
+- Report honest deltas.
+- Language: the user's (default: neutral technical English).
