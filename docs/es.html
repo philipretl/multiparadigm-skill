@@ -206,6 +206,7 @@
   .mech-block { margin-top: 10px; font-size: .9rem; }
   .mech-block .lbl { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
   .lbl-lim { color: var(--warn); }
+  .lbl-key { color: var(--accent); }
   .lbl-prop { color: var(--ok); }
   .mech-anchor { margin-top: 12px; font-size: .8rem; color: var(--text-faint); border-top: 1px dashed var(--border); padding-top: 9px; }
 
@@ -406,30 +407,35 @@
       <article class="card mech-card">
         <h3><span class="mech-id">M1</span> Álgebras de objetos / Tagless Final</h3>
         <div class="mech-block"><span class="lbl lbl-lim">Limitación que responde</span><p>Factory + Visitor frente al Expression Problem: extender datos y operaciones simultáneamente obliga a modificar código existente.</p></div>
+        <div class="mech-block"><span class="lbl lbl-key">Pregunta clave</span><p>¿Cómo crezco tipos y operaciones simultáneamente sin tocar lo existente? · <em>Mecanismo: los datos son funciones que esperan un intérprete (signatura algebraica polimórfica).</em></p></div>
         <div class="mech-block"><span class="lbl lbl-prop">Qué propone</span><p>Generalizarlos en una signatura algebraica polimórfica que permite extensión simultánea de ambas dimensiones sin tocar lo existente.</p></div>
         <p class="mech-anchor">Anclas: Oliveira &amp; Cook 2012 · Oliveira &amp; van der Storm 2015 · Oliveira et al. 2013.</p>
       </article>
       <article class="card mech-card">
         <h3><span class="mech-id">M2</span> Type classes / Generalized Interfaces</h3>
         <div class="mech-block"><span class="lbl lbl-lim">Limitación que responde</span><p>Adapter y Strategy: dotar de comportamiento nuevo a tipos existentes exige modificarlos o envolverlos, acoplando el diseño a la jerarquía.</p></div>
+        <div class="mech-block"><span class="lbl lbl-key">Pregunta clave</span><p>¿Cómo le doy comportamiento nuevo a tipos que ya existen sin modificarlos ni envolverlos? · <em>Mecanismo: alguien externo aporta la implementación (type class instance) — polimorfismo ad hoc retroactivo.</em></p></div>
         <div class="mech-block"><span class="lbl lbl-prop">Qué propone</span><p>Asociar comportamiento a tipos sin modificar sus definiciones: polimorfismo ad hoc abierto y retroactivo.</p></div>
         <p class="mech-anchor">Anclas: Wehr &amp; Thiemann (JavaGI) · Odersky et al. (Simplicitly).</p>
       </article>
       <article class="card mech-card">
         <h3><span class="mech-id">M3</span> Tipos algebraicos + Pattern Matching</h3>
         <div class="mech-block"><span class="lbl lbl-lim">Limitación que responde</span><p>Visitor: lograr descomposición por casos en OO impone double dispatch y el andamiaje accept/visit que contamina las clases base.</p></div>
+        <div class="mech-block"><span class="lbl lbl-key">Pregunta clave</span><p>¿Cómo descompongo por casos sin el andamiaje accept/visit del Visitor? · <em>Mecanismo: ADT sellado + match exhaustivo — el compilador verifica que no falta ningún caso.</em></p></div>
         <div class="mech-block"><span class="lbl lbl-prop">Qué propone</span><p>Tipos cerrados con descomposición sintáctica explícita, separando datos de operaciones sin sacrificar el chequeo de exhaustividad.</p></div>
         <p class="mech-anchor">Anclas: Emir et al. (Matching Objects with Patterns) · Löh &amp; Hinze (Open data types).</p>
       </article>
       <article class="card mech-card">
         <h3><span class="mech-id">M4</span> HOF + Closures + Composición FP</h3>
         <div class="mech-block"><span class="lbl lbl-lim">Limitación que responde</span><p>Strategy, Command e Iterator: representar comportamiento puro exige levantar jerarquías de clases cuya indirección no aporta valor.</p></div>
+        <div class="mech-block"><span class="lbl lbl-key">Pregunta clave</span><p>¿Cómo represento comportamiento puro sin levantar jerarquías de clases? · <em>Mecanismo: una función como valor — lambda como estrategia, closure como comando, pipeline como iterador.</em></p></div>
         <div class="mech-block"><span class="lbl lbl-prop">Qué propone</span><p>Valores de primera clase: una lambda como estrategia, un closure como comando, un pipeline map/filter/reduce como iterador.</p></div>
         <p class="mech-anchor">Anclas: Bringert &amp; Ranta · Sousa &amp; Ferreira · Crichton (Typed Design Patterns).</p>
       </article>
       <article class="card mech-card">
         <h3><span class="mech-id">M5</span> Signals reactivos / Actores / Continuaciones</h3>
         <div class="mech-block"><span class="lbl lbl-lim">Limitación que responde</span><p>Observer: el acoplamiento sujeto-observadores y la inversión de control manual dispersan el flujo de actualización y dificultan razonar sobre él.</p></div>
+        <div class="mech-block"><span class="lbl lbl-key">Pregunta clave</span><p>¿Cómo propago cambios sin acoplar sujetos a observadores? · <em>Mecanismo: grafo declarativo de dependencias — el runtime propaga el cambio, no el programador.</em></p></div>
         <div class="mech-block"><span class="lbl lbl-prop">Qué propone</span><p>Propagación declarativa de cambios (signals) o actores que unifican concurrencia hilos+eventos a través de continuaciones explícitas.</p></div>
         <p class="mech-anchor">Anclas: Salvaneschi et al. (RP comprehension) · Haller &amp; Odersky (Actors that Unify).</p>
       </article>

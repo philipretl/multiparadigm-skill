@@ -206,6 +206,7 @@
   .mech-block { margin-top: 10px; font-size: .9rem; }
   .mech-block .lbl { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
   .lbl-lim { color: var(--warn); }
+  .lbl-key { color: var(--accent); }
   .lbl-prop { color: var(--ok); }
   .mech-anchor { margin-top: 12px; font-size: .8rem; color: var(--text-faint); border-top: 1px dashed var(--border); padding-top: 9px; }
 
@@ -406,30 +407,35 @@
       <article class="card mech-card">
         <h3><span class="mech-id">M1</span> Object algebras / Tagless Final</h3>
         <div class="mech-block"><span class="lbl lbl-lim">Limitation it addresses</span><p>Factory + Visitor against the Expression Problem: extending data and operations at the same time forces changes to existing code.</p></div>
+        <div class="mech-block"><span class="lbl lbl-key">Key question</span><p>How do I grow types and operations simultaneously without touching existing code? · <em>Mechanism: data are functions awaiting an interpreter (polymorphic algebraic signature).</em></p></div>
         <div class="mech-block"><span class="lbl lbl-prop">Proposal</span><p>Generalize them into a polymorphic algebraic signature that allows simultaneous extension along both dimensions without touching existing code.</p></div>
         <p class="mech-anchor">Anchors: Oliveira &amp; Cook 2012 · Oliveira &amp; van der Storm 2015 · Oliveira et al. 2013.</p>
       </article>
       <article class="card mech-card">
         <h3><span class="mech-id">M2</span> Type classes / Generalized Interfaces</h3>
         <div class="mech-block"><span class="lbl lbl-lim">Limitation it addresses</span><p>Adapter and Strategy: giving existing types new behavior requires modifying or wrapping them, coupling the design to the hierarchy.</p></div>
+        <div class="mech-block"><span class="lbl lbl-key">Key question</span><p>How do I give new behavior to types that already exist without modifying or wrapping them? · <em>Mechanism: an external party supplies the implementation (type class instance) — open, retroactive ad hoc polymorphism.</em></p></div>
         <div class="mech-block"><span class="lbl lbl-prop">Proposal</span><p>Attach behavior to types without modifying their definitions: open, retroactive ad hoc polymorphism.</p></div>
         <p class="mech-anchor">Anchors: Wehr &amp; Thiemann (JavaGI) · Odersky et al. (Simplicitly).</p>
       </article>
       <article class="card mech-card">
         <h3><span class="mech-id">M3</span> Algebraic data types + Pattern Matching</h3>
         <div class="mech-block"><span class="lbl lbl-lim">Limitation it addresses</span><p>Visitor: achieving case-based decomposition in OO imposes double dispatch and the accept/visit scaffolding that pollutes the base classes.</p></div>
+        <div class="mech-block"><span class="lbl lbl-key">Key question</span><p>How do I decompose by case without the accept/visit scaffolding of the Visitor? · <em>Mechanism: sealed ADT + exhaustive match — the compiler verifies no case is missing.</em></p></div>
         <div class="mech-block"><span class="lbl lbl-prop">Proposal</span><p>Closed types with explicit syntactic decomposition, separating data from operations without giving up exhaustiveness checking.</p></div>
         <p class="mech-anchor">Anchors: Emir et al. (Matching Objects with Patterns) · Löh &amp; Hinze (Open data types).</p>
       </article>
       <article class="card mech-card">
         <h3><span class="mech-id">M4</span> HOF + Closures + FP Composition</h3>
         <div class="mech-block"><span class="lbl lbl-lim">Limitation it addresses</span><p>Strategy, Command, and Iterator: representing pure behavior requires erecting class hierarchies whose indirection adds no value.</p></div>
+        <div class="mech-block"><span class="lbl lbl-key">Key question</span><p>How do I represent pure behavior without erecting class hierarchies? · <em>Mechanism: a function as a value — lambda as strategy, closure as command, pipeline as iterator.</em></p></div>
         <div class="mech-block"><span class="lbl lbl-prop">Proposal</span><p>First-class values: a lambda as a strategy, a closure as a command, a map/filter/reduce pipeline as an iterator.</p></div>
         <p class="mech-anchor">Anchors: Bringert &amp; Ranta · Sousa &amp; Ferreira · Crichton (Typed Design Patterns).</p>
       </article>
       <article class="card mech-card">
         <h3><span class="mech-id">M5</span> Reactive signals / Actors / Continuations</h3>
         <div class="mech-block"><span class="lbl lbl-lim">Limitation it addresses</span><p>Observer: the subject–observer coupling and the manual inversion of control scatter the update flow and make it hard to reason about.</p></div>
+        <div class="mech-block"><span class="lbl lbl-key">Key question</span><p>How do I propagate changes without coupling subjects to observers? · <em>Mechanism: declarative dependency graph — the runtime propagates the change, not the programmer.</em></p></div>
         <div class="mech-block"><span class="lbl lbl-prop">Proposal</span><p>Declarative change propagation (signals), or actors that unify thread- and event-based concurrency through explicit continuations.</p></div>
         <p class="mech-anchor">Anchors: Salvaneschi et al. (RP comprehension) · Haller &amp; Odersky (Actors that Unify).</p>
       </article>
