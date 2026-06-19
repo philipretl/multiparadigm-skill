@@ -375,7 +375,7 @@
   <div class="hero-cta">
     <a class="btn btn-primary" href="#wizard">Try the decision wizard</a>
     <a class="btn btn-ghost" href="#catalog">Browse the pattern catalog</a>
-    <a class="btn btn-ghost" href="referencia-tecnica-fp-oo.pdf" download="Referencia-Tecnica-FP-OO.pdf">
+    <a class="btn btn-ghost" href="quick-reference-fp-oo-en.pdf" download="Quick-Reference-FP-OO.pdf">
       <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download quick reference
     </a>
   </div>
@@ -483,8 +483,8 @@
 <section id="guide">
   <div class="wrap">
     <p class="sec-kicker">Application guide</p>
-    <h2>Four steps, iterable throughout the design</h2>
-    <p class="sec-lead">The guide organizes the application of the technique into four sequential steps that can be iterated during detailed design.</p>
+    <h2>Six steps, iterable throughout the design</h2>
+    <p class="sec-lead">The guide organizes the application of the technique into six sequential steps that can be iterated during detailed design.</p>
     <div class="steps">
       <div class="step card">
         <div class="step-num" aria-hidden="true">1</div>
@@ -497,13 +497,21 @@
       <div class="step card">
         <div class="step-num" aria-hidden="true">2</div>
         <div class="step-body">
+          <h3>Existing pattern detection</h3>
+          <p>Inventory the design patterns present in the starting code (Strategy, Visitor, Observer…) using the <a href="#catalog">catalog</a> as a checklist. Each detected pattern is a direct reformulation candidate with its associated abstraction mechanism (<a href="#mechanisms">M1–M5</a>).</p>
+          <span class="step-out">Output: pattern → M1–M5 mechanism map for each variation point</span>
+        </div>
+      </div>
+      <div class="step card">
+        <div class="step-num" aria-hidden="true">3</div>
+        <div class="step-body">
           <h3>Hybrid interface definition</h3>
           <p>Design the interfaces of the main classes (OO) and, at the variation points that require flexibility, replace single-method interfaces with function-typed parameters. This substitution applies the Open/Closed principle through functional composition (Narbel 2007).</p>
           <span class="step-out">Output: OO contracts with functional variation points</span>
         </div>
       </div>
       <div class="step card">
-        <div class="step-num" aria-hidden="true">3</div>
+        <div class="step-num" aria-hidden="true">4</div>
         <div class="step-body">
           <h3>Visual modeling</h3>
           <p>Build the class and sequence diagrams with the <a href="#uml">lightweight UML profile</a>, explicitly marking <code>&lt;&lt;pure&gt;&gt;</code> methods and <code>&lt;&lt;ValueObject&gt;&gt;</code> classes so the decisions remain visible from the design onward.</p>
@@ -511,11 +519,19 @@
         </div>
       </div>
       <div class="step card">
-        <div class="step-num" aria-hidden="true">4</div>
+        <div class="step-num" aria-hidden="true">5</div>
         <div class="step-body">
           <h3>Refactoring toward immutability</h3>
           <p>Review the preliminary design looking to reduce shared mutable state. If an OO class has a majority of <code>&lt;&lt;pure&gt;&gt;</code> methods, consider turning it into a functional module or a <code>&lt;&lt;ValueObject&gt;&gt;</code>; if a procedural sequence can be replaced by function composition, do it.</p>
           <span class="step-out">Output: design with minimal, localized mutable state</span>
+        </div>
+      </div>
+      <div class="step card">
+        <div class="step-num" aria-hidden="true">6</div>
+        <div class="step-body">
+          <h3>O(1) vs. O(N) validation</h3>
+          <p>Before descending to code, declare the anticipated evolution steps and verify that the design decisions absorb them: expected changes must be resolved with bounded cost (O(1) in places to modify) and must not grow with the size of the system.</p>
+          <span class="step-out">Output: validated design with bounded-cost evolution steps</span>
         </div>
       </div>
     </div>
