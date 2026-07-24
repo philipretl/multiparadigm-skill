@@ -1,8 +1,8 @@
 # agent.md — FP/OO Multiparadigm Agent
 
 > **Single entry point** of the `/multiparadigm` command. Any AI agent that executes this
-> command must read this file **first** and, on demand, the documents under `referencia/`.
-> This file orchestrates; `referencia/` is the conceptual source of truth.
+> command must read this file **first** and, on demand, the documents under `reference/`.
+> This file orchestrates; `reference/` is the conceptual source of truth.
 
 This agent encodes, as an agentic proof of concept, the *FP/OO Multiparadigm Design
 Technique — Flexibility-Oriented Hybrid Approach* (Vega Noguera, Mosquera Navarro;
@@ -25,11 +25,11 @@ Principles that govern every decision:
 - **Paradigm assignment is decided by the domain, not by preference** (Coplien 2000; Vranic
   2009). You do not issue verdicts of the kind "OO is better" or "FP is better".
 - **Every OO/functional decision cites an explicit criterion** from the decision table
-  (`referencia/01-criterios-decision.md`). A decision without a cited criterion is flagged and,
+  (`reference/01-decision-criteria.md`). A decision without a cited criterion is flagged and,
   in audit, rejected by protocol (not by judgment). This *criterion -> decision* traceability
   is mandatory: it is the unit of reproducibility of the study.
 - **You do not invent metrics.** You only use the Eden & Mens evaluation model adopted in
-  `referencia/04-modelo-evaluacion.md`.
+  `reference/04-evaluation-model.md`.
 - **You preserve observable behavior.** The intervention is refactoring: it improves the
   design without changing what the system does. It is verified with the existing tests.
 
@@ -70,7 +70,7 @@ These phases replicate the instrument of Section 5.3.2 of the monograph. Phases 
 
 ### Phase 1 — Detection
 1. Identify language, version, and framework.
-2. Count **OO signals** and **FP signals** (see `referencia/02-perfil-uml.md` §Detectors) and
+2. Count **OO signals** and **FP signals** (see `reference/02-uml-profile.md` §Detectors) and
    report the **paradigm balance**.
 3. Identify the **subdomain** of each relevant portion (entity with a life cycle,
    ETL pipeline, HTTP controller, interpreter/AST, pure computation, batch concurrency, etc.).
@@ -90,12 +90,12 @@ These phases replicate the instrument of Section 5.3.2 of the monograph. Phases 
    profile and the annotations appear **only** in the "after" (Phase 5), and their appearance is
    part of the visible delta. Generate **as many diagrams as independent subdomains** exist;
    write them as `.mmd` **and** render them to `.svg` with mermaid-cli under
-   `multiparadigm-<date>/diagrams/<module>/` (§7), and embed them in `1-deteccion.md`. This
+   `multiparadigm-<date>/diagrams/<module>/` (§7), and embed them in `1-detection.md`. This
    artifact **freezes the visual baseline** against which Phase 6 exhibits the variation. It is
    a **mandatory result item of the analysis phase** (§7).
 
 ### Phase 2 — Report of detected patterns
-List the **catalog patterns** (`referencia/03-catalogo-patrones.md`) present in the code, or
+List the **catalog patterns** (`reference/03-pattern-catalog.md`) present in the code, or
 their ad-hoc equivalents. For each one:
 - Pattern (catalog number) and name.
 - Location (`file:line`).
@@ -105,7 +105,7 @@ their ad-hoc equivalents. For each one:
 
 ### Phase 3 — Report of implicit business rules
 Identify the **business rules** mixed with the mechanics (see
-`referencia/03-catalogo-patrones.md` §Business rules). For each one:
+`reference/03-pattern-catalog.md` §Business rules). For each one:
 - Statement in natural language.
 - Location.
 - Degree of mixing with the mechanics (high / medium / low).
@@ -114,9 +114,9 @@ Identify the **business rules** mixed with the mechanics (see
 
 ### Phase 4 — Technique application
 For each finding from phases 2–3 indicate, **with explicit traceability**:
-- Applicable **assignment criterion** (Table 4.1, `referencia/01-criterios-decision.md`).
+- Applicable **assignment criterion** (Table 4.1, `reference/01-decision-criteria.md`).
 - **Mechanism M1–M6** that the refactoring will invoke.
-- **Stereotype(s)** of the UML profile (`referencia/02-perfil-uml.md`) that will annotate the
+- **Stereotype(s)** of the UML profile (`reference/02-uml-profile.md`) that will annotate the
   result.
 
 ### Phase 5 — Refactoring proposal
@@ -128,12 +128,12 @@ Deliver a concrete proposal:
   three standard ones: new operation, new type/datum, new variant), describe **where** it would
   occur in the new design and at what cost (files touched, LoC modified vs added).
 - **Writing to disk**: dump the conceptual diff and the "after" code into
-  `multiparadigm-<date>/5-refactorizacion.md`; if applicable, the **"after" diagram** annotated
-  with the technique's profile in `diagrams/<module>/after-clases.{mmd,svg}`. Record each
+  `multiparadigm-<date>/5-refactoring.md`; if applicable, the **"after" diagram** annotated
+  with the technique's profile in `diagrams/<module>/after-classes.{mmd,svg}`. Record each
   proposal in `tasks.md` with its mode and status.
 
 ### Phase 6 — Flexibility delta
-Compute and report according to `referencia/04-modelo-evaluacion.md` (Eden & Mens
+Compute and report according to `reference/04-evaluation-model.md` (Eden & Mens
 evolution-cost model, Table 4.4). For each declared evolution step and each version (baseline
 vs multiparadigm design):
 - `C¹_Classes(δ)`, `C^LoC(δ)`, `C^CC(δ)`, `C^Add/LoC(δ)` and, if applicable, `t(δ)`.
@@ -207,7 +207,7 @@ Besides the flexibility delta, record and report at closing (evidence for RQ-C4)
 The output is **not console text**: it is a **versioned directory** of artifacts, OpenSpec
 style. Create `multiparadigm-<YYYY-MM-DD>/` at the **repo root** (suffix `-2`, `-3`… if it
 already exists) and write **everything** there. On the console print **only** a brief summary +
-the directory **path**. Templates and full structure in `referencia/06-formato-salida.md` (do
+the directory **path**. Templates and full structure in `reference/06-output-format.md` (do
 not omit files; if a section does not apply, create it with "N/A — reason").
 
 Minimal structure:
@@ -215,7 +215,7 @@ Minimal structure:
 ```
 multiparadigm-<date>/
 ├── README.md              # index / audit entry (scope · status · links · summary)
-├── 1-deteccion.md … 8-bibliografia.md   # one phase per file
+├── 1-detection.md … 8-bibliography.md   # one phase per file
 ├── tasks.md               # "what is planned": proposals · mode · criterion · status
 └── diagrams/<module>/     # .mmd (source) + .svg (rendered image)
 ```
@@ -231,7 +231,7 @@ It stays tracked by git; do **not** commit unless the user asks for it (rule #11
 
 ## 8. Hard rules
 
-1. **Do not invent metrics** outside the model in `referencia/04-modelo-evaluacion.md`.
+1. **Do not invent metrics** outside the model in `reference/04-evaluation-model.md`.
 2. **Do not rewrite the model.** To justify a metric, point to the reference.
 3. **Do not classify paradigms** other than OO / functional / procedural, unless the
    language introduces them natively.
@@ -255,12 +255,12 @@ It stays tracked by git; do **not** commit unless the user asks for it (rule #11
 
 The five components of the technique (Chapter 4) plus the output template:
 
-- `referencia/01-criterios-decision.md` — OO/FP decision table and per-dimension criteria (§4.2).
-- `referencia/02-perfil-uml.md` — Lightweight UML profile: stereotypes and detectors (§4.3).
-- `referencia/03-catalogo-patrones.md` — Catalog of 16 patterns, mechanisms M1–M5, and business rules (§4.4).
-- `referencia/04-modelo-evaluacion.md` — Eden & Mens evolution-cost model (§4.5).
-- `referencia/05-guia-aplicacion.md` — Six-step methodological guide (§4.6).
-- `referencia/06-formato-salida.md` — Structure of the `multiparadigm-<date>/` output directory
+- `reference/01-decision-criteria.md` — OO/FP decision table and per-dimension criteria (§4.2).
+- `reference/02-uml-profile.md` — Lightweight UML profile: stereotypes and detectors (§4.3).
+- `reference/03-pattern-catalog.md` — Catalog of 16 patterns, mechanisms M1–M5, and business rules (§4.4).
+- `reference/04-evaluation-model.md` — Eden & Mens evolution-cost model (§4.5).
+- `reference/05-application-guide.md` — Six-step methodological guide (§4.6).
+- `reference/06-output-format.md` — Structure of the `multiparadigm-<date>/` output directory
   (artifacts on disk, `.mmd`+`.svg` diagrams) and per-file templates.
 
 **Canonical bibliographic anchors:** Eden & Mens (2006); Kallel et al. (2018); Heinzl &

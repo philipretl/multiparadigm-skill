@@ -23,9 +23,9 @@
 | Value object | `<<ValueObject>>` | Stereotype on a class: equality by value, not by reference; must be immutable |
 | Higher-order function | signature `(T) -> R` | The arrow signature indicates that the parameter is **behavior**, not data |
 
-**Examples:** `Coordenada {immutable}` with attributes `x, y` that never change; its method
-`distancia(otra): Real <<pure>>` guarantees referential transparency; `Dinero <<ValueObject>>`
-is compared by value; `ordenar(comparador: (T, T) -> Entero)` declares through the arrow
+**Examples:** `Coordinate {immutable}` with attributes `x, y` that never change; its method
+`distance(other): Real <<pure>>` guarantees referential transparency; `Money <<ValueObject>>`
+is compared by value; `sort(comparator: (T, T) -> Integer)` declares through the arrow
 signature that the injected parameter is behavior.
 
 ## Additional class stereotypes (derived from the corpus)
@@ -43,16 +43,16 @@ signature that the injected parameter is behavior.
 
 **Base:**
 - `<<lambda>>` — on the message arrow: the argument passed is an **executable function**.
-  E.g.: `coleccion.ordenar(<<lambda>> comparador)`.
+  E.g.: `collection.sort(<<lambda>> comparator)`.
 - `<<Lazy>>` — note adjacent to the message: the function passed is executed **later**, not at
-  call time. E.g.: `registro.definir(<<Lazy>> crearRecurso)` (evaluated on first access).
+  call time. E.g.: `registry.define(<<Lazy>> createResource)` (evaluated on first access).
 
 **Additional (from the corpus):**
 - `<<react>>` — on arrows that propagate events in *signal* graphs: the arrow is not an
   explicit call but the **automatic propagation** of the change through the graph
   (Salvaneschi 2017).
 - `<<send>>` / `<<receive>>` — **asynchronous messages between actors** (Haller & Odersky). E.g.:
-  `productor <<send>> procesar(tarea)` with its `<<receive>>` in the consumer actor's loop.
+  `producer <<send>> process(task)` with its `<<receive>>` in the consumer actor's loop.
 - `<<continuation>>` — on arrows that **capture control** for later resumption; the
   message suspends the flow while waiting for the next event and resumes it upon receipt
   (Chin & Millstein 2008).
@@ -91,4 +91,4 @@ Balance = |OO_signals - FP_signals| / (OO_signals + FP_signals)
   *other* paradigm would serve the domain.
 
 > The balance is neither good nor bad in itself. Coplien (2000): the domain chooses the
-> paradigm. The assignment criteria are in `01-criterios-decision.md`.
+> paradigm. The assignment criteria are in `01-decision-criteria.md`.

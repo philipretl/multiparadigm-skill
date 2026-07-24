@@ -30,13 +30,13 @@ behavior is preserved. **No change enters without human review.**
 multiparadigm-agent/
 ├── agent.md                       # ENTRY POINT — command orchestration
 ├── README.md                      # this file
-└── referencia/                    # conceptual source of truth (Chapter 4)
-    ├── 01-criterios-decision.md   # Table 4.1 and per-dimension criteria (§4.2)
-    ├── 02-perfil-uml.md           # lightweight UML profile + paradigm detectors (§4.3)
-    ├── 03-catalogo-patrones.md    # 16 patterns, mechanisms M1–M5, business rules (§4.4)
-    ├── 04-modelo-evaluacion.md    # Eden & Mens evolution-cost model (§4.5)
-    ├── 05-guia-aplicacion.md      # six-step methodological guide (§4.6)
-    └── 06-formato-salida.md       # mandatory Markdown template of the report
+└── reference/                     # conceptual source of truth (Chapter 4)
+    ├── 01-decision-criteria.md    # Table 4.1 and per-dimension criteria (§4.2)
+    ├── 02-uml-profile.md          # lightweight UML profile + paradigm detectors (§4.3)
+    ├── 03-pattern-catalog.md      # 16 patterns, mechanisms M1–M5, business rules (§4.4)
+    ├── 04-evaluation-model.md     # Eden & Mens evolution-cost model (§4.5)
+    ├── 05-application-guide.md    # six-step methodological guide (§4.6)
+    └── 06-output-format.md        # mandatory Markdown template of the report
 ```
 
 ## Non-negotiable principles

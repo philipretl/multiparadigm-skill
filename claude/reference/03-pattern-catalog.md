@@ -1,7 +1,7 @@
 # 03 — Catalog of reformulated patterns (§4.4)
 
 > Sixteen patterns that update classic references (GoF) and recent functional patterns for
-> **hybrid** use. Each pattern connects to a criterion from `01-criterios-decision.md`
+> **hybrid** use. Each pattern connects to a criterion from `01-decision-criteria.md`
 > and to a mechanism **M1–M5**. In Phase 2 the agent uses them as a **checklist**
 > to detect existing patterns; in Phase 5, as a reformulation repertoire.
 
@@ -64,10 +64,10 @@ covered).
 The agent identifies **implicit business rules** and separates them from the mechanics.
 
 **Detection heuristics:**
-- Magic constants with semantic meaning (`MAX_REINTENTOS = 3`, `TASA_IVA = 0.19`).
-- Validations embedded in the flow (`if (edad < 18) rechazar(...)`).
+- Magic constants with semantic meaning (`MAX_RETRIES = 3`, `VAT_RATE = 0.19`).
+- Validations embedded in the flow (`if (age < 18) reject(...)`).
 - Derived computations that mix formula with orchestration.
-- Implicit state machines (`estado === 'pendiente'`).
+- Implicit state machines (`status === 'pending'`).
 - Inline permissions / roles.
 
 **Treatment in the report:** for each rule, (i) location, (ii) statement in natural

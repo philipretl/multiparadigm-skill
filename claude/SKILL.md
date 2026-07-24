@@ -17,12 +17,12 @@ the technique to the current repository.
 
 1. **Read `agent.md`** (in this same folder). It is the entry point: it orchestrates the six
    phases, the three decision modes, and the approval-gated application flow.
-2. **Read, on demand, the `referencia/` documents** each phase needs (they are the conceptual
+2. **Read, on demand, the `reference/` documents** each phase needs (they are the conceptual
    source of truth; do not invent criteria or metrics outside of them).
 3. **Run the six phases in order** (Detection -> Patterns -> Business rules -> Technique
    application -> Refactoring -> Flexibility delta) and **write the output as artifacts** in a
    `multiparadigm-<date>/` directory at the repo root (per-phase report, `tasks.md`, and UML
-   diagrams `.mmd`+`.svg` rendered), following `referencia/06-formato-salida.md`. On the
+   diagrams `.mmd`+`.svg` rendered), following `reference/06-output-format.md`. On the
    console, print only a summary + the directory path.
 4. **Universal human audit:** no change is applied without explicit approval. Upon approval,
    apply to the working tree and run the existing tests to verify that behavior is preserved.

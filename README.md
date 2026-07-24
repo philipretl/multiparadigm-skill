@@ -1,17 +1,33 @@
 # multiparadigm-skill
 
-> 🌐 **Interactive page / Página interactiva de la técnica**: EN https://philipretl.github.io/multiparadigm-skill/ · ES https://philipretl.github.io/multiparadigm-skill/es.html
+> Interactive page of the technique: EN <https://philipretl.github.io/multiparadigm-skill/> · ES <https://philipretl.github.io/multiparadigm-skill/es.html>
 
-> Portable skill that exposes the `/multiparadigm` command in Claude Code / Cowork, GitHub Copilot, Grok, ChatGPT, Cursor, and any assistant that accepts a system prompt.
+Provider-agnostic skill that exposes the `/multiparadigm` command in AI coding assistants: Claude Code / Cowork, GitHub Copilot, Cursor, Grok, ChatGPT / OpenAI, and any assistant that accepts a system prompt.
 
-`/multiparadigm` analyzes code under the **multiparadigm functional + object-oriented approach** and returns a structured report with:
+`/multiparadigm` analyzes code under the **multiparadigm functional + object-oriented approach** and produces a structured report with:
 
-1. Detection of OO/FP balance and subdomain.
-2. Patterns from the catalog (16) detected in the code.
+1. Detection of the OO/FP balance and the subdomain.
+2. Catalog patterns (16) detected in the code.
 3. Implicit business rules, with the suggested paradigm to encapsulate them.
-4. Technique application: assignment criterion + abstraction mechanism + refactoring category.
-5. Concrete refactoring proposal (with after code and absorbed anticipated changes).
-6. **Flexibility delta** before/after along three dimensions: extensibility, modularity, variation points. Plus an aggregate Flex-Score.
+4. Technique application: assignment criterion + abstraction mechanism + UML stereotypes.
+5. Concrete refactoring proposal ("after" code and absorbed anticipated changes), applied only under human approval.
+6. **Flexibility delta** before/after along three dimensions: extensibility, modularity, variation points.
+
+The skill is written in English, but it always **responds in the language the user writes in**.
+
+## Design philosophy: provider-agnostic
+
+The technique is defined **once** and adapted **per provider**. A shared, provider-neutral core holds the conceptual model and the canonical prompt; each top-level folder is an **adapter** that packages the command for one AI provider, in that provider's native format (skill/plugin, instructions file, rules file, or plain system prompt). Nothing in the technique depends on a specific vendor: any assistant that can read Markdown instructions can run it.
+
+| Adapter | Provider | Format |
+|---|---|---|
+| `claude/` | Claude Code / Cowork | Skill (`SKILL.md` + `agent.md` + `plugin.json`) — **current version** |
+| `copilot/` | GitHub Copilot | `copilot-instructions.md` + prompt file |
+| `cursor/` | Cursor | `.cursorrules` + `multiparadigm.mdc` |
+| `grok-chatgpt/` | Grok / ChatGPT / Claude.ai | System prompt + user template |
+| `shared/` | Any (provider-neutral core) | `MODEL.md` + `PROMPT.md` |
+
+The `claude/` adapter is the current version, aligned with Chapters 4–5 of the monograph: it works as an agent (six phases, three decision modes, approval-gated application, artifacts on disk) and measures flexibility exclusively with the Eden & Mens evolution-cost model. The `shared/`, `copilot/`, `cursor/`, and `grok-chatgpt/` adapters are the previous generation of the command (report-only, with the legacy Flex-Score aggregate), kept as a working historical reference.
 
 ## Origin
 
@@ -19,41 +35,48 @@ This skill operationalizes the technique from the undergraduate research project
 
 It does not introduce invented metrics: the entire apparatus is anchored in the thesis's QA > 2.0 corpus (68 effective studies) and the canonical references (Eden & Mens 2006; Kallel et al. 2018; Heinzl & Schreibmann 2018; Heithoff 2023; Coplien 2000; Vranic 2009; Narbel 2007; Castro 2020; Oliveira & Cook 2012).
 
-## Repo structure
+## Repository structure
 
 ```
 multiparadigm-skill/
-├── README.md                    # this file
-├── shared/                      # source of truth
-│   ├── MODEL.md                 # vocabulary, metrics, catalog (DO NOT REWRITE IN ADAPTERS)
-│   └── PROMPT.md                # canonical prompt with 6 phases and mandatory Markdown output
-├── claude/                      # Claude Code / Cowork adapter
-│   ├── SKILL.md
+├── README.md                      # this file
+├── shared/                        # provider-neutral core (legacy version)
+│   ├── MODEL.md                   # vocabulary, metrics, catalog (do not rewrite in adapters)
+│   └── PROMPT.md                  # canonical prompt: 6 phases + mandatory Markdown output
+├── claude/                        # Claude Code / Cowork adapter (current version)
+│   ├── SKILL.md                   # skill entry point for /multiparadigm
+│   ├── agent.md                   # orchestration: phases, decision modes, approval flow
 │   ├── plugin.json
-│   └── multiparadigm.command.md
-├── copilot/                     # GitHub Copilot adapter
+│   ├── reference/                 # conceptual source of truth (Chapter 4)
+│   │   ├── 01-decision-criteria.md
+│   │   ├── 02-uml-profile.md
+│   │   ├── 03-pattern-catalog.md
+│   │   ├── 04-evaluation-model.md
+│   │   ├── 05-application-guide.md
+│   │   └── 06-output-format.md
+│   └── scripts/render-mmd.sh      # renders .mmd diagrams to .svg (mermaid-cli)
+├── copilot/                       # GitHub Copilot adapter
 │   ├── README.md
 │   └── copilot-instructions.md
-├── .github/prompts/             # prompt files for Copilot Chat
-│   └── multiparadigm.prompt.md
-├── grok-chatgpt/                # Grok / ChatGPT / Claude.ai adapter
-│   ├── system-prompt.md
-│   └── user-template.md
-├── cursor/                      # Cursor adapter
+├── cursor/                        # Cursor adapter
 │   ├── .cursorrules
 │   └── multiparadigm.mdc
+├── grok-chatgpt/                  # Grok / ChatGPT / Claude.ai adapter
+│   ├── system-prompt.md
+│   └── user-template.md
+├── docs/                          # GitHub Pages: interactive page (EN/ES) + reference PDFs
 └── examples/
-    └── before-after/            # end-to-end case (Java Visitor interpreter → Java 21 Object Algebra)
+    └── before-after/              # end-to-end case (Java Visitor → Java 21 Object Algebra)
         ├── input.java
         ├── after.java
         └── REPORT.md
 ```
 
-## Installation per tool
+## Installation per provider
 
-### Claude Code / Cowork
+### Claude Code / Cowork (current version)
 
-Package `claude/` + `shared/` + `examples/` as a `.plugin` and load it:
+Package `claude/` + `shared/` + `examples/` as a plugin and load it:
 
 ```bash
 zip -r multiparadigm-skill.plugin claude shared examples
@@ -61,24 +84,17 @@ zip -r multiparadigm-skill.plugin claude shared examples
 # /plugin install ./multiparadigm-skill.plugin
 ```
 
-Invoke:
-
-```
-/multiparadigm
-```
-
-or pasting the code after the command.
+Invoke with `/multiparadigm` (optionally with a path, `--domain`, `--deltas`, `--dry-run`, `--no-render`, or `--target <lang>`; see `claude/SKILL.md`). The output is a versioned artifacts directory `multiparadigm-<date>/` at the repo root (per-phase reports, `tasks.md`, and UML diagrams as `.mmd` + rendered `.svg`), per `claude/reference/06-output-format.md`.
 
 ### GitHub Copilot
 
-1. Copy `.github/prompts/multiparadigm.prompt.md` to the target repo.
-2. Copy the contents of `copilot/copilot-instructions.md` into `.github/copilot-instructions.md` of the target repo (or concatenate it onto the existing one).
-3. Make sure `shared/MODEL.md` and `shared/PROMPT.md` are accessible in the repo (commit directly or use a submodule).
-4. In Copilot Chat: `/multiparadigm` (with code selected or pasted).
+1. Copy the contents of `copilot/copilot-instructions.md` into `.github/copilot-instructions.md` of the target repo (or concatenate it onto the existing one).
+2. Make sure `shared/MODEL.md` and `shared/PROMPT.md` are accessible in the repo (commit them directly or use a submodule).
+3. In Copilot Chat: `/multiparadigm` (with code selected or pasted). See `copilot/README.md`.
 
 ### Grok / ChatGPT / Claude.ai (without Cowork)
 
-1. Paste `grok-chatgpt/system-prompt.md` as a **system message** (in ChatGPT: Custom GPT instructions or Project instructions; in Grok: system prompt; in Claude.ai: project instructions).
+1. Paste `grok-chatgpt/system-prompt.md` as a **system message** (in ChatGPT: Custom GPT or Project instructions; in Grok: system prompt; in Claude.ai: project instructions).
 2. Invoke with the `grok-chatgpt/user-template.md` template.
 
 ### Cursor
@@ -87,51 +103,19 @@ or pasting the code after the command.
 2. Copy `cursor/multiparadigm.mdc` to `.cursor/rules/` of the target repo.
 3. Invoke in Cursor chat: `/multiparadigm` with the file open or code selected.
 
-## What the command returns
-
-A Markdown document with this structure (non-negotiable, comes from `shared/PROMPT.md` §OUTPUT):
-
-```
-# Multiparadigm report — `<file or module>`
-## 1. Detection
-## 2. Detected patterns
-## 3. Business rules
-## 4. Technique application
-## 5. Refactoring proposal
-   ### 5.1 Conceptual diff
-   ### 5.2 After code
-   ### 5.3 Absorbed anticipated changes
-## 6. Flexibility delta
-   ### 6.1 Per dimension (table)
-   ### 6.2 Flex-Score (Before / After / Delta)
-   ### 6.3 Verdict
-## 7. Bibliographic anchors used
-```
-
-## Flexibility model (from the thesis)
-
-**Three dimensions** (`shared/MODEL.md` §1):
-
-- **Extensibility** (Eden & Mens 2006) — LOC modified vs added vs preserved over the 3 standard anticipated changes.
-- **Modularity** (Kallel et al. 2018) — Ca/Ce/I, LCOM4, DIT, syntactic cohesion.
-- **Variation points** (Heinzl & Schreibmann 2018; Heithoff 2023) — polymorphic instances pluggable without touching the core, wiring cost.
-
-**Flex-Score** = 0.40 × Extensibility + 0.35 × Modularity + 0.25 × VariationPoints (range 0.0-1.0).
-
-Weights derived from mention frequency in the thesis's QA > 2.0 corpus.
-
 ## Hard rules of the command
 
-- Does not invent metrics outside `shared/MODEL.md`.
-- Does not deliver OO-vs-FP verdicts. Follows Coplien (2000): paradigm is chosen by domain.
-- Reports honest deltas. If Flex-Score drops, it says so.
-- Castro (2020) [#30 of the corpus]: paradigm alone does not determine quality.
-- If the code is trivial or already optimal, marks category "Not applicable".
-- Default behavior is **same-language refactoring**; switches target only when the user asks for `--target <lang>` or the source language genuinely lacks the mechanism.
+- Does not invent metrics outside the reference model (`claude/reference/04-evaluation-model.md`; legacy adapters: `shared/MODEL.md`).
+- Does not deliver OO-vs-FP verdicts. Follows Coplien (2000): the domain chooses the paradigm.
+- Reports honest deltas: if flexibility drops, it says so.
+- If the code is trivial or already optimal, marks the category "Not applicable".
+- Default behavior is same-language refactoring; switches target only with `--target <lang>` or when the source language genuinely lacks the mechanism.
+- Responds in the user's language, regardless of the skill being written in English.
+- In the `claude/` adapter, no change is applied without explicit human approval (universal audit).
 
 ## Example
 
-See [`examples/before-after/`](./examples/before-after/) for a complete case: Visitor interpreter in Java refactored to Java 21 with sealed interfaces + records + Object Algebra (M1) + ADT/pattern matching (M3), with full report and flexibility calculations.
+See [`examples/before-after/`](./examples/before-after/) for a complete case: a Visitor interpreter in Java refactored to Java 21 with sealed interfaces + records + Object Algebra (M1) + ADT/pattern matching (M3), with the full report and flexibility calculations.
 
 ## License
 

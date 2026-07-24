@@ -24,23 +24,23 @@ user asks for it (hard rule #11).
 ```
 multiparadigm-<date>/
 ├── README.md              # Index / audit entry: scope · status · links · summary
-├── 1-deteccion.md         # Phase 1: balance + subdomains + embedded baseline diagrams
-├── 2-patrones.md          # Phase 2 (table)
-├── 3-reglas-negocio.md    # Phase 3 (table)
-├── 4-aplicacion.md        # Phase 4 (table: finding·criterion·mechanism·stereotype·mode)
-├── 5-refactorizacion.md   # Phase 5: conceptual diff + "after" code + absorbed changes
-├── 6-delta-flexibilidad.md# Phase 6: tables per metric + big-O verdict
-├── 7-metricas-proceso.md  # Phase 7: agentic process metrics (RQ-C4)
-├── 8-bibliografia.md      # Phase 8: anchors used
+├── 1-detection.md         # Phase 1: balance + subdomains + embedded baseline diagrams
+├── 2-patterns.md          # Phase 2 (table)
+├── 3-business-rules.md    # Phase 3 (table)
+├── 4-application.md       # Phase 4 (table: finding·criterion·mechanism·stereotype·mode)
+├── 5-refactoring.md       # Phase 5: conceptual diff + "after" code + absorbed changes
+├── 6-flexibility-delta.md # Phase 6: tables per metric + big-O verdict
+├── 7-process-metrics.md   # Phase 7: agentic process metrics (RQ-C4)
+├── 8-bibliography.md      # Phase 8: anchors used
 ├── tasks.md               # "What is planned": proposals · mode · criterion · status
 └── diagrams/
     └── <module>/
-        ├── baseline-clases.mmd      # Mermaid source (neutral standard UML)
-        ├── baseline-clases.svg      # rendered image
-        ├── baseline-secuencia.mmd   # if the subdomain warrants it
-        ├── baseline-secuencia.svg
-        ├── after-clases.mmd         # after approved Phase 5 (with the technique's profile)
-        └── after-clases.svg
+        ├── baseline-classes.mmd     # Mermaid source (neutral standard UML)
+        ├── baseline-classes.svg     # rendered image
+        ├── baseline-sequence.mmd    # if the subdomain warrants it
+        ├── baseline-sequence.svg
+        ├── after-classes.mmd        # after approved Phase 5 (with the technique's profile)
+        └── after-classes.svg
 ```
 
 One `diagrams/<module>/` subdirectory per analyzed module/subdomain.
@@ -51,13 +51,13 @@ One `diagrams/<module>/` subdirectory per analyzed module/subdomain.
 
 Each diagram is emitted as **two** files: the Mermaid source `.mmd` and its **rendered SVG
 image**. The **baseline** snapshot goes in neutral standard UML (without the technique's
-profile, see `02-perfil-uml.md`); the **"after"** diagram does carry the profile.
+profile, see `02-uml-profile.md`); the **"after"** diagram does carry the profile.
 
 1. Write the `.mmd`.
 2. Render it to SVG with **mermaid-cli**:
    ```bash
-   npx -y @mermaid-js/mermaid-cli -i diagrams/<module>/baseline-clases.mmd \
-       -o diagrams/<module>/baseline-clases.svg
+   npx -y @mermaid-js/mermaid-cli -i diagrams/<module>/baseline-classes.mmd \
+       -o diagrams/<module>/baseline-classes.svg
    ```
    or run the helper `scripts/render-mmd.sh <multiparadigm-dir>` (renders **all** the `.mmd`).
 3. If mermaid-cli is **not available** (no network / no Chromium), leave the `.mmd`, **do not
@@ -67,8 +67,8 @@ profile, see `02-perfil-uml.md`); the **"after"** diagram does carry the profile
 The `.md` files **embed** the image and link the source:
 
 ```markdown
-![Classes — <module> (before)](diagrams/<module>/baseline-clases.svg)
-Source: [`baseline-clases.mmd`](diagrams/<module>/baseline-clases.mmd)
+![Classes — <module> (before)](diagrams/<module>/baseline-classes.svg)
+Source: [`baseline-classes.mmd`](diagrams/<module>/baseline-classes.mmd)
 ```
 
 ---
@@ -81,21 +81,21 @@ Source: [`baseline-clases.mmd`](diagrams/<module>/baseline-clases.mmd)
 > Scope: <modules/paths> · Language: <…> · Status: analysis | proposed | applied · /multiparadigm
 
 ## What was analyzed
-- <module> — <subdomain> — [detection](1-deteccion.md)
+- <module> — <subdomain> — [detection](1-detection.md)
 
 ## What was found (summary)
 - Patterns: <n> · Business rules: <n> · Proposals: <n> (<autonomous>/<guided>)
 
 ## Diagrams (baseline)
-- <module> — ![classes](diagrams/<module>/baseline-clases.svg)
+- <module> — ![classes](diagrams/<module>/baseline-classes.svg)
 
 ## What is planned
 See [tasks.md](tasks.md). <Pending renders, if any, with their command.>
 
 ## Index
-1. [Detection](1-deteccion.md) · 2. [Patterns](2-patrones.md) · 3. [Rules](3-reglas-negocio.md)
-4. [Application](4-aplicacion.md) · 5. [Refactoring](5-refactorizacion.md)
-6. [Delta](6-delta-flexibilidad.md) · 7. [Metrics](7-metricas-proceso.md) · 8. [Bibliography](8-bibliografia.md)
+1. [Detection](1-detection.md) · 2. [Patterns](2-patterns.md) · 3. [Rules](3-business-rules.md)
+4. [Application](4-application.md) · 5. [Refactoring](5-refactoring.md)
+6. [Delta](6-flexibility-delta.md) · 7. [Metrics](7-process-metrics.md) · 8. [Bibliography](8-bibliography.md)
 ```
 
 ### `tasks.md` — what is planned
@@ -109,7 +109,7 @@ See [tasks.md](tasks.md). <Pending renders, if any, with their command.>
 - [ ] **P1** — <what it does> — applies to `<file>`
 ```
 
-### `1-deteccion.md` … `8-bibliografia.md`
+### `1-detection.md` … `8-bibliography.md`
 The content of sections 1–8 of the technique, **one phase per file**. Section 1 embeds the
 baseline diagrams (`.svg` images). Structure of each section:
 
@@ -126,7 +126,7 @@ that biases the comparison and belongs to the "after"). Only classes, `<<interfa
 attributes, operations, and relationships. One diagram per independent subdomain. Embed each
 `.svg` and link its `.mmd`.
 
-![Classes — <module> (before)](diagrams/<module>/baseline-clases.svg)
+![Classes — <module> (before)](diagrams/<module>/baseline-classes.svg)
 ```
 
 ```markdown

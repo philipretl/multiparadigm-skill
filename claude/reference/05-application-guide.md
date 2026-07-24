@@ -23,7 +23,7 @@ directly onto the agent's six phases (`agent.md` §3).
    -> *Agent Phase 1.*
 
 2. **Detection of existing patterns.** Inventory the patterns present (Strategy, Visitor,
-   Observer…) using the **catalog** (`03-catalogo-patrones.md`) as a checklist. Every
+   Observer…) using the **catalog** (`03-pattern-catalog.md`) as a checklist. Every
    detected classic pattern is a direct reformulation candidate, with its associated M1–M5
    mechanism.
    -> *Agent Phase 2.*
@@ -35,7 +35,7 @@ directly onto the agent's six phases (`agent.md` §3).
    -> *Agent Phases 3–4.*
 
 4. **Visual modeling.** Build the class and sequence diagrams with the notation of
-   `02-perfil-uml.md`, explicitly marking the `<<pure>>` methods and the `<<ValueObject>>`
+   `02-uml-profile.md`, explicitly marking the `<<pure>>` methods and the `<<ValueObject>>`
    classes so the decisions stay visible.
    -> *Agent Phase 1*: produces the **baseline diagram(s)** in Mermaid ("before" state),
    in **neutral standard UML without the technique's profile**, as a result item of the analysis
@@ -50,7 +50,7 @@ directly onto the agent's six phases (`agent.md` §3).
    -> *Agent Phase 5.*
 
 6. **Validation against the evaluation model.** Before descending to code, contrast the
-   resulting design with the model in `04-modelo-evaluacion.md`: declare the **anticipated
+   resulting design with the model in `04-evaluation-model.md`: declare the **anticipated
    evolution steps** and verify that the decisions **absorb** them (the anticipated changes are
    resolved with bounded cost under the model's metrics).
    -> *Agent Phase 6.*
