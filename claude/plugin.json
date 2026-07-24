@@ -1,7 +1,7 @@
 {
   "name": "multiparadigm-skill",
-  "version": "0.1.0",
-  "description": "/multiparadigm command: OO+FP multiparadigm analysis and refactoring following the Vega-Mosquera-Hurtado technique (Universidad del Cauca, 2026). Reports patterns, business rules, refactoring proposal, and flexibility delta.",
+  "version": "0.2.0",
+  "description": "/multiparadigm command: OO+FP multiparadigm analysis and refactoring following the Vega-Mosquera-Hurtado technique (Universidad del Cauca, 2026). Reports patterns, business rules, a refactoring proposal applied under human approval, and the flexibility delta with the Eden & Mens evolution-cost model.",
   "author": {
     "name": "Undergraduate Research Project — Universidad del Cauca",
     "url": "https://parsif.al/philipretl/tecnica-para-el-diseno-de-software-flexible-siguiendo-un-enfoque-multi-paradigma-funcionaloo/"
@@ -17,7 +17,7 @@
   "commands": [
     {
       "name": "/multiparadigm",
-      "description": "Analyze code under the OO+FP multiparadigm approach and report flexibility delta before/after",
+      "description": "Analyze code under the OO+FP multiparadigm approach, apply the refactoring under approval, and report the flexibility delta before/after",
       "skill": "multiparadigm"
     }
   ]
